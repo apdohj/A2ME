@@ -8,6 +8,7 @@ import { games } from "@/lib/gameData";
 import { useAuth } from "@/lib/auth-context";
 import { useSettings } from "@/lib/settings-context";
 import { useLanguage } from "@/lib/language-context";
+import { currencySymbols, type Currency } from "@/lib/types";
 
 export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -116,6 +117,13 @@ export default function Header() {
               {user ? (
                 <>
                   <Link
+                    href="/dashboard"
+                    title="Wallet balance"
+                    className="px-3 py-2 rounded-xl bg-gold/10 border border-gold/30 text-gold text-xs font-bold whitespace-nowrap hover:bg-gold/20 transition-colors"
+                  >
+                    💳 {currencySymbols[(profile?.walletCurrency ?? "USD") as Currency]} {(profile?.wallet?.[profile?.walletCurrency ?? "USD"] ?? 0).toFixed(2)}
+                  </Link>
+                  <Link
                     href="/messages"
                     className="px-4 py-2 text-sm text-slate-300 hover:text-white transition-colors"
                   >
@@ -214,6 +222,12 @@ export default function Header() {
               </Link>
               {user ? (
                 <>
+                  <Link
+                    href="/dashboard"
+                    className="block px-4 py-2.5 rounded-xl bg-gold/10 border border-gold/30 text-gold text-center text-sm font-bold"
+                  >
+                    💳 Wallet: {currencySymbols[(profile?.walletCurrency ?? "USD") as Currency]} {(profile?.wallet?.[profile?.walletCurrency ?? "USD"] ?? 0).toFixed(2)}
+                  </Link>
                   <Link
                     href="/messages"
                     className="block px-4 py-2.5 rounded-lg hover:bg-white/5 text-sm text-slate-300 text-center"

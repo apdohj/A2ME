@@ -24,11 +24,11 @@ const translations: Record<Language, Translation> = {
 const LanguageContext = createContext({ language: "en" as Language, t: translations.en, toggleLanguage: () => {} });
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [language, setLanguage] = useState<Language>("en");
-  useEffect(() => {
-    const saved = window.localStorage.getItem("a2me-language") as Language | null;
-    if (saved === "ar" || saved === "en") setLanguage(saved);
-  }, []);
+  const [language, setLanguage] = useState<Language>(() => {
+    if (typeof window === "undefined") return "en";
+    const saved = window.localStorage.getItem("a2me-language");
+    return saved === "ar" ? "ar" : "en";
+  });
   useEffect(() => {
     document.documentElement.lang = language;
     document.documentElement.dir = language === "ar" ? "rtl" : "ltr";
