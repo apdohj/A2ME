@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { subscribeProducts, getOrCreateConversation } from "@/lib/store";
 import { games } from "@/lib/gameData";
+import { GameLogoById } from "@/components/GameLogo";
 import { useAuth } from "@/lib/auth-context";
 import type { Product } from "@/lib/types";
 
@@ -159,7 +160,10 @@ export default function MarketplaceContent() {
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <span className="text-4xl">🎮</span>
+                  <GameLogoById
+                    name={product.game}
+                    className="h-10 w-auto max-w-32 opacity-60"
+                  />
                 )}
               </div>
 

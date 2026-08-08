@@ -9,6 +9,7 @@ import {
   getRankIcon,
   calculatePrice,
 } from "@/lib/gameData";
+import { GameLogo } from "@/components/GameLogo";
 import { useSettings } from "@/lib/settings-context";
 
 export default function HeroCalculator() {
@@ -148,7 +149,9 @@ export default function HeroCalculator() {
                         : "bg-white/5 border border-white/10 text-slate-400 hover:text-white hover:border-gold/40"
                     }`}
                   >
-                    <span className="w-9 h-9 rounded-lg bg-black/30 border border-white/10 flex items-center justify-center text-xl shrink-0">{g.icon}</span>
+                    <span className="w-9 h-9 rounded-lg bg-black/30 border border-white/10 flex items-center justify-center shrink-0 overflow-hidden">
+                      <GameLogo game={g} className="h-6 w-auto max-w-7" />
+                    </span>
                     <span className="truncate">{g.name}</span>
                   </button>
                 ))}

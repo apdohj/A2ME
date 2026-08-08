@@ -5,9 +5,9 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { games } from "@/lib/gameData";
+import { GameLogo } from "@/components/GameLogo";
 import { useAuth } from "@/lib/auth-context";
 import { useSettings } from "@/lib/settings-context";
-import { useLanguage } from "@/lib/language-context";
 import { currencySymbols, type Currency } from "@/lib/types";
 
 export default function Header() {
@@ -16,12 +16,11 @@ export default function Header() {
   const { user, profile, logout } = useAuth();
   const { settings } = useSettings();
   const router = useRouter();
-  const { t, toggleLanguage } = useLanguage();
   const localizedNavLinks = [
-    { label: t.home, href: "/" },
-    { label: t.marketplace, href: "/marketplace" },
-    { label: t.coaching, href: "/coaching" },
-    { label: t.booster, href: "/booster" },
+    { label: "Home", href: "/" },
+    { label: "Marketplace", href: "/marketplace" },
+    { label: "Coaching", href: "/coaching" },
+    { label: "Boosters", href: "/booster" },
   ];
 
   const handleLogout = async () => {
@@ -35,34 +34,34 @@ export default function Header() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
-            <Link href="/" className="flex items-center gap-2 group">
+            <Link href="/" className="flex items-center gap-2 group shrink-0">
               {settings.logoUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={settings.logoUrl}
                   alt={settings.siteName}
-                  className="w-28 h-10 rounded-lg object-contain bg-white/10 border border-white/10"
+                  className="w-24 h-9 rounded-lg object-contain bg-white/10 border border-white/10"
                 />
               ) : (
-                <img src="/logo.svg" alt={settings.siteName} className="w-28 h-10 rounded-lg object-contain bg-white/10 border border-white/10" />
+                <img src="/logo.svg" alt={settings.siteName} className="w-24 h-9 rounded-lg object-contain bg-white/10 border border-white/10" />
               )}
-              <span className="text-xl font-bold bg-gradient-to-r from-neon-blue to-neon-purple bg-clip-text text-transparent">
+              <span className="text-lg font-bold bg-gradient-to-r from-gold to-amber-400 bg-clip-text text-transparent whitespace-nowrap">
                 {settings.siteName}
               </span>
             </Link>
 
             {/* Desktop Nav */}
-            <nav className="hidden md:flex items-center gap-1">
+            <nav className="hidden lg:flex items-center gap-0.5">
               {/* Games Dropdown */}
               <div
                 className="relative"
                 onMouseEnter={() => setGamesOpen(true)}
                 onMouseLeave={() => setGamesOpen(false)}
               >
-                <button className="px-4 py-2 text-sm text-slate-300 hover:text-neon-blue transition-colors rounded-lg hover:bg-white/5 flex items-center gap-1">
+                <button className="px-3 py-1.5 text-sm text-slate-300 hover:text-neon-blue transition-colors rounded-lg hover:bg-white/5 flex items-center gap-1">
                   Games
                   <svg
-                    className={`w-4 h-4 transition-transform ${gamesOpen ? "rotate-180" : ""}`}
+                    className={`w-3.5 h-3.5 transition-transform ${gamesOpen ? "rotate-180" : ""}`}
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -76,16 +75,18 @@ export default function Header() {
                       initial={{ opacity: 0, y: -10 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -10 }}
-                      className="absolute top-full left-0 mt-1 glass-card p-2 min-w-[200px]"
+                      className="absolute top-full left-0 mt-1 glass-card p-1.5 min-w-[190px] max-h-[70vh] overflow-y-auto"
                     >
                       {games.map((game) => (
                         <a
                           key={game.id}
                           href={`/boost?game=${game.id}`}
-                          className="flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-white/5 text-sm text-slate-300 hover:text-neon-blue transition-colors"
+                          className="flex items-center gap-3 px-3 py-1.5 rounded-lg hover:bg-white/5 text-sm text-slate-300 hover:text-neon-blue transition-colors"
                         >
-                          <span className="text-lg">{game.icon}</span>
-                          {game.name}
+                          <span className="w-6 flex items-center justify-center shrink-0">
+                            <GameLogo game={game} className="h-4 w-auto max-w-6" />
+                          </span>
+                          <span className="whitespace-nowrap">{game.name}</span>
                         </a>
                       ))}
                     </motion.div>
@@ -97,7 +98,7 @@ export default function Header() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="px-4 py-2 text-sm text-slate-300 hover:text-neon-blue transition-colors rounded-lg hover:bg-white/5"
+                  className="px-3 py-1.5 text-sm text-slate-300 hover:text-neon-blue transition-colors rounded-lg hover:bg-white/5"
                 >
                   {link.label}
                 </Link>
@@ -105,13 +106,12 @@ export default function Header() {
             </nav>
 
             {/* Right Side */}
-            <div className="hidden md:flex items-center gap-3">
-              <button onClick={toggleLanguage} className="px-3 py-2 text-xs text-gold border border-gold/30 rounded-lg">{t.language}</button>
+            <div className="hidden lg:flex items-center gap-2">
               <Link
                 href="/sell"
-                className="px-4 py-2 text-sm font-semibold rounded-xl border border-gold/50 text-gold hover:bg-gold/10 transition-colors"
+                className="px-3 py-1.5 text-sm font-semibold rounded-xl border border-gold/50 text-gold hover:bg-gold/10 transition-colors whitespace-nowrap"
               >
-                💰 Sell Accounts
+                Sell Accounts
               </Link>
 
               {user ? (
@@ -119,31 +119,25 @@ export default function Header() {
                   <Link
                     href="/dashboard"
                     title="Wallet balance"
-                    className="px-3 py-2 rounded-xl bg-gold/10 border border-gold/30 text-gold text-xs font-bold whitespace-nowrap hover:bg-gold/20 transition-colors"
+                    className="px-3 py-1.5 rounded-xl bg-gold/10 border border-gold/30 text-gold text-xs font-bold whitespace-nowrap hover:bg-gold/20 transition-colors"
                   >
-                    💳 {currencySymbols[(profile?.walletCurrency ?? "USD") as Currency]} {(profile?.wallet?.[profile?.walletCurrency ?? "USD"] ?? 0).toFixed(2)}
+                    {currencySymbols[(profile?.walletCurrency ?? "USD") as Currency]} {(profile?.wallet?.[profile?.walletCurrency ?? "USD"] ?? 0).toFixed(2)}
                   </Link>
                   <Link
                     href="/messages"
-                    className="px-4 py-2 text-sm text-slate-300 hover:text-white transition-colors"
+                    className="px-3 py-1.5 text-sm text-slate-300 hover:text-white transition-colors whitespace-nowrap"
                   >
                     Messages
                   </Link>
-                  <Link
-                    href="/dashboard"
-                    className="px-4 py-2 text-sm text-slate-300 hover:text-white transition-colors"
-                  >
-                    {profile?.nickname || "Account"}
-                  </Link>
                   <button
                     onClick={handleLogout}
-                    className="px-3 py-2 text-sm text-slate-400 hover:text-white transition-colors"
+                    className="px-3 py-1.5 text-sm text-slate-400 hover:text-white transition-colors whitespace-nowrap"
                   >
                     Logout
                   </button>
                   <Link
                     href="/dashboard"
-                    className="px-5 py-2 text-sm font-semibold rounded-xl bg-gradient-to-r from-neon-blue to-neon-purple text-black hover:opacity-90 transition-opacity neon-glow"
+                    className="px-4 py-1.5 text-sm font-semibold rounded-xl bg-gradient-to-r from-neon-blue to-neon-purple text-black hover:opacity-90 transition-opacity neon-glow whitespace-nowrap"
                   >
                     Dashboard
                   </Link>
@@ -152,13 +146,13 @@ export default function Header() {
                 <>
                   <Link
                     href="/login"
-                    className="px-4 py-2 text-sm text-slate-300 hover:text-white transition-colors"
+                    className="px-3 py-1.5 text-sm text-slate-300 hover:text-white transition-colors whitespace-nowrap"
                   >
                     Sign In
                   </Link>
                   <Link
                     href="/signup"
-                    className="px-5 py-2 text-sm font-semibold rounded-xl bg-gradient-to-r from-neon-blue to-neon-purple text-black hover:opacity-90 transition-opacity neon-glow"
+                    className="px-4 py-1.5 text-sm font-semibold rounded-xl bg-gradient-to-r from-neon-blue to-neon-purple text-black hover:opacity-90 transition-opacity neon-glow whitespace-nowrap"
                   >
                     Create Account
                   </Link>
@@ -168,7 +162,7 @@ export default function Header() {
 
             {/* Mobile Toggle */}
             <button
-              className="md:hidden p-2 text-slate-300"
+              className="lg:hidden p-2 text-slate-300"
               onClick={() => setMobileOpen(!mobileOpen)}
             >
               <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -190,7 +184,7 @@ export default function Header() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden glass-card border-0 border-b border-glass-border rounded-none"
+            className="lg:hidden glass-card border-0 border-b border-glass-border rounded-none"
           >
             <div className="px-4 py-4 space-y-2">
               {games.map((game) => (
@@ -199,7 +193,9 @@ export default function Header() {
                   href={`/boost?game=${game.id}`}
                   className="flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-white/5 text-sm text-slate-300"
                 >
-                  <span>{game.icon}</span>
+                  <span className="w-6 flex items-center justify-center shrink-0">
+                    <GameLogo game={game} className="h-4 w-auto max-w-6" />
+                  </span>
                   {game.name}
                 </a>
               ))}

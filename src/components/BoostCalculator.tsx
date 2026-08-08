@@ -11,6 +11,7 @@ import {
   getRankIcon,
   calculatePrice,
 } from "@/lib/gameData";
+import { GameLogo } from "@/components/GameLogo";
 
 function BoostCalculatorInner() {
   const searchParams = useSearchParams();
@@ -146,7 +147,9 @@ function BoostCalculatorInner() {
                       : "bg-white/5 border border-white/5 text-slate-400 hover:text-white hover:border-white/20"
                   }`}
                 >
-                  <span className="text-2xl">{g.icon}</span>
+                  <span className="h-8 flex items-center justify-center">
+                    <GameLogo game={g} className="h-6 w-auto max-w-20" />
+                  </span>
                   <span className="text-sm font-medium">{g.name}</span>
                 </button>
               ))}
@@ -302,8 +305,9 @@ function BoostCalculatorInner() {
             <div className="space-y-4 mb-6">
               <div className="flex justify-between text-sm">
                 <span className="text-slate-400">Game</span>
-                <span className="text-white font-medium">
-                  {game.icon} {game.name}
+                <span className="text-white font-medium flex items-center gap-2">
+                  <GameLogo game={game} className="h-4 w-auto max-w-16" />
+                  {game.name}
                 </span>
               </div>
               <div className="flex justify-between text-sm">

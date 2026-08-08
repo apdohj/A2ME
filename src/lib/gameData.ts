@@ -9,6 +9,7 @@ export interface GameConfig {
   id: string;
   name: string;
   icon: string;
+  logo?: string;
   ranks: Rank[];
   basePrice: number;
 }
@@ -18,6 +19,7 @@ export const games: GameConfig[] = [
     id: "valorant",
     name: "Valorant",
     icon: "🎯",
+    logo: "/games/valorant.svg",
     basePrice: 8,
     ranks: [
       { name: "Iron", divisions: 3, icon: "⬜", color: "#8B8B8B" },
@@ -35,6 +37,7 @@ export const games: GameConfig[] = [
     id: "lol",
     name: "League of Legends",
     icon: "⚔️",
+    logo: "/games/lol.png",
     basePrice: 7,
     ranks: [
       { name: "Iron", divisions: 4, icon: "⬜", color: "#8B8B8B" },
@@ -53,6 +56,7 @@ export const games: GameConfig[] = [
     id: "cs2",
     name: "Counter-Strike 2",
     icon: "🔫",
+    logo: "/games/cs2.svg",
     basePrice: 10,
     ranks: [
       { name: "Silver 1", divisions: 1, icon: "⬜", color: "#C0C0C0" },
@@ -78,6 +82,7 @@ export const games: GameConfig[] = [
     id: "overwatch",
     name: "Overwatch 2",
     icon: "🛡️",
+    logo: "/games/overwatch.svg",
     basePrice: 9,
     ranks: [
       { name: "Bronze", divisions: 5, icon: "🟫", color: "#CD7F32" },
