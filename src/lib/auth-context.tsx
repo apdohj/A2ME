@@ -30,6 +30,7 @@ interface AuthContextValue {
   logout: () => Promise<void>;
   updateNickname: (nickname: string) => Promise<void>;
   becomeSeller: () => Promise<void>;
+  requestSellerAccess: (paymentReference: string) => Promise<void>;
   refresh: () => Promise<void>;
 }
 
@@ -137,6 +138,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     );
   };
 
+  const requestSellerAccess = async (paymentReference: string) => {
+    if (!user) return;
+    await setDoc(
+      doc(firestore, "users", user.uid),
+      { sellerPaymentStatus: "pending", sellerPaymentReference: paymentReference },
+      { merge: true }
+    );
+  };
+
   const refresh = async () => {
     if (user) setProfile(await getUser(user.uid));
   };
@@ -153,6 +163,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         logout,
         updateNickname,
         becomeSeller,
+        requestSellerAccess,
         refresh,
       }}
     >

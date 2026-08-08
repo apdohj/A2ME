@@ -7,6 +7,8 @@ export interface AppUser {
   role: Role;
   isSeller: boolean;
   banned: boolean;
+  sellerPaymentStatus?: "not_required" | "pending" | "paid";
+  sellerPaymentReference?: string;
   createdAt: number;
 }
 
@@ -23,9 +25,6 @@ export interface Product {
   images: string[];
   status: "active" | "sold" | "hidden";
   sellerBanned: boolean;
-  commissionRate?: number;
-  paymentStatus?: "not_required" | "pending" | "paid";
-  paymentReference?: string;
   createdAt: number;
 }
 

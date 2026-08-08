@@ -133,7 +133,7 @@ export default function HeroCalculator() {
               </h2>
 
               {/* Game Selector */}
-              <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-6 max-h-52 overflow-y-auto pr-1">
                 {games.map((g, i) => (
                   <button
                     key={g.id}
@@ -142,14 +142,14 @@ export default function HeroCalculator() {
                       setFromRank(0);
                       setToRank(3);
                     }}
-                    className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all ${
+                    className={`flex items-center gap-2 px-3 py-3 rounded-xl text-left text-sm font-medium transition-all ${
                       selectedGame === i
-                        ? "bg-gradient-to-r from-neon-blue/20 to-neon-purple/20 border border-neon-blue/50 text-white"
-                        : "bg-white/5 border border-white/5 text-slate-400 hover:text-white hover:border-white/20"
+                        ? "bg-gradient-to-br from-neon-blue/25 to-neon-purple/20 border border-neon-blue/60 text-white shadow-[0_0_18px_rgba(245,197,24,0.18)]"
+                        : "bg-white/5 border border-white/10 text-slate-400 hover:text-white hover:border-gold/40"
                     }`}
                   >
-                    <span className="text-lg">{g.icon}</span>
-                    <span className="hidden sm:inline">{g.name}</span>
+                    <span className="w-9 h-9 rounded-lg bg-black/30 border border-white/10 flex items-center justify-center text-xl shrink-0">{g.icon}</span>
+                    <span className="truncate">{g.name}</span>
                   </button>
                 ))}
               </div>

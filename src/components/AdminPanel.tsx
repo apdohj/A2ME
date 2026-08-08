@@ -160,6 +160,19 @@ function UsersTab({ me }: { me: string }) {
                           Make Seller
                         </button>
                       )}
+                      {u.sellerPaymentStatus === "pending" && (
+                        <button
+                          onClick={() =>
+                            act(u.uid, {
+                              isSeller: true,
+                              sellerPaymentStatus: "paid",
+                            })
+                          }
+                          className="px-2 py-1 rounded-lg bg-green-500/10 border border-green-500/30 text-green-400 text-[11px] font-semibold hover:bg-green-500/20 transition-colors"
+                        >
+                          Verify $1 seller payment
+                        </button>
+                      )}
                       {u.isSeller && !u.banned && (
                         <button
                           onClick={() => act(u.uid, { isSeller: false })}
@@ -296,23 +309,10 @@ function ProductsTab() {
                   seller banned
                 </span>
               )}
-              {p.paymentStatus === "pending" && (
-                <span className="ml-1 px-2 py-0.5 rounded-full bg-gold/15 text-gold font-semibold">
-                  commission pending
-                </span>
-              )}
             </div>
           </div>
           <div className="flex gap-2">
             {busy === p.id && <span className="text-xs text-slate-500">...</span>}
-            {p.paymentStatus === "pending" && (
-              <button
-                onClick={() => act(p.id, () => updateProduct(p.id, { paymentStatus: "paid", status: "sold" }))}
-                className="px-3 py-1.5 rounded-lg bg-green-500/10 border border-green-500/30 text-green-400 text-xs font-semibold hover:bg-green-500/20 transition-colors"
-              >
-                Verify 5% payment
-              </button>
-            )}
             {p.status !== "active" && (
               <button
                 onClick={() => act(p.id, () => updateProduct(p.id, { status: "active", sellerBanned: false }))}

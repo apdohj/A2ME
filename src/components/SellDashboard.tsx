@@ -7,14 +7,16 @@ import {
   createProduct,
   deleteProduct,
   setProductStatus,
-  updateProduct,
   uploadImage,
 } from "@/lib/store";
 import { games, getAllDivisions } from "@/lib/gameData";
 import type { AppUser, Product } from "@/lib/types";
 
 export default function SellDashboard() {
-  const { user, profile, becomeSeller, updateNickname } = useAuth();
+  const { user, profile, requestSellerAccess, updateNickname } = useAuth();
+  const [paymentOpen, setPaymentOpen] = useState(false);
+  const [paymentReference, setPaymentReference] = useState("");
+  const [paymentSent, setPaymentSent] = useState(false);
 
   if (!user || !profile) {
     return (
@@ -32,17 +34,47 @@ export default function SellDashboard() {
           <h2 className="text-3xl font-bold text-white mb-4">
             Become a Seller
           </h2>
-          <p className="text-slate-400 mb-8">
-            Sell game accounts to real buyers. Add photos, set your price, and
-            chat with buyers directly. All earnings go straight to you.
+          <p className="text-slate-400 mb-4">
+            Activate your seller account once for $1, then list accounts and chat with buyers directly.
           </p>
-          <button
-            onClick={() => becomeSeller()}
-            className="px-8 py-3 rounded-xl bg-gradient-to-r from-neon-blue to-neon-purple text-black font-bold hover:opacity-90 transition-opacity"
-          >
-            Yes, I want to sell accounts
-          </button>
+          {profile.sellerPaymentStatus === "pending" || paymentSent ? (
+            <div className="rounded-xl border border-gold/30 bg-gold/5 p-4 text-sm text-gold">
+              Payment submitted. An admin will verify it before seller access is enabled.
+            </div>
+          ) : (
+            <button
+              onClick={() => setPaymentOpen(true)}
+              className="px-8 py-3 rounded-xl bg-gradient-to-r from-neon-blue to-neon-purple text-black font-bold hover:opacity-90 transition-opacity"
+            >
+              Activate Seller Account — $1
+            </button>
+          )}
         </div>
+        {paymentOpen && (
+          <div className="fixed inset-0 z-[80] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+            <div className="glass-card w-full max-w-md p-6 text-left">
+              <h3 className="text-xl font-bold text-white mb-2">Seller activation payment</h3>
+              <p className="text-sm text-slate-400 mb-4">Pay $1 using any method below, then enter the transaction reference.</p>
+              <div className="grid grid-cols-2 gap-3 mb-4">
+                <div className="rounded-xl bg-white p-2 flex items-center justify-center">
+                  <img src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=apdoapdo5%40instapay" alt="InstaPay QR for apdoapdo5@instapay" className="w-full max-w-[180px]" />
+                </div>
+                <div className="rounded-xl border border-gold/30 bg-gold/5 p-3 text-xs text-slate-300 space-y-2">
+                  <strong className="text-gold block">Payment methods</strong>
+                  <div>InstaPay: <b>01229938115</b></div>
+                  <div>Vodafone Cash: <b>01229938115</b></div>
+                  <div>Orange Cash: <b>01229938115</b></div>
+                  <div className="text-slate-500">InstaPay account: apdoapdo5@instapay</div>
+                </div>
+              </div>
+              <input value={paymentReference} onChange={(e) => setPaymentReference(e.target.value)} className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-white outline-none mb-4" placeholder="Transaction reference" />
+              <div className="flex gap-3">
+                <button onClick={() => setPaymentOpen(false)} className="flex-1 py-2.5 rounded-xl bg-white/10 text-slate-300">Cancel</button>
+                <button disabled={!paymentReference.trim()} onClick={async () => { await requestSellerAccess(paymentReference.trim()); setPaymentSent(true); setPaymentOpen(false); }} className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-neon-blue to-neon-purple text-black font-semibold disabled:opacity-40">Submit payment</button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     );
   }
@@ -79,12 +111,7 @@ function SellDashboardInner({
   const [uploading, setUploading] = useState(false);
   const [formError, setFormError] = useState("");
   const [formOk, setFormOk] = useState("");
-  const [saleProduct, setSaleProduct] = useState<Product | null>(null);
-  const [paymentReference, setPaymentReference] = useState("");
-
   const selectedGame = games.find((item) => item.name === game) ?? games[0];
-  const commission = (parseFloat(price) || 0) * 0.05;
-  const sellerNet = (parseFloat(price) || 0) - commission;
 
   useEffect(() => {
     const unsub = subscribeProducts((all) => {
@@ -266,16 +293,6 @@ function SellDashboardInner({
             />
           </div>
 
-          <div className="rounded-xl border border-gold/30 bg-gold/5 p-4">
-            <div className="flex items-center justify-between gap-4 text-sm">
-              <span className="text-slate-300">Marketplace commission (5%)</span>
-              <strong className="text-gold">${commission.toFixed(2)}</strong>
-            </div>
-            <div className="flex items-center justify-between gap-4 text-xs mt-2">
-              <span className="text-slate-500">Your expected payout after sale</span>
-              <span className="text-green-400">${sellerNet.toFixed(2)}</span>
-            </div>
-          </div>
 
           <div>
             <label className="text-sm text-slate-400 mb-1 block">
@@ -355,7 +372,7 @@ function SellDashboardInner({
                 <div className="flex gap-2">
                   {p.status === "active" ? (
                     <button
-                      onClick={() => setSaleProduct(p)}
+                      onClick={() => setProductStatus(p.id, "sold")}
                       className="px-3 py-1.5 rounded-lg bg-green-500/15 border border-green-500/40 text-green-400 text-xs font-semibold hover:bg-green-500/25 transition-colors"
                     >
                       Mark Sold
@@ -381,40 +398,6 @@ function SellDashboardInner({
         )}
       </div>
 
-      {saleProduct && (
-        <div className="fixed inset-0 z-[80] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="glass-card w-full max-w-md p-6">
-            <h3 className="text-xl font-bold text-white mb-2">Confirm account sale</h3>
-            <p className="text-sm text-slate-400 mb-5">
-              A 5% marketplace commission is required before marking this account as sold.
-            </p>
-            <div className="rounded-xl bg-white/5 p-4 space-y-2 text-sm mb-5">
-              <div className="flex justify-between"><span className="text-slate-400">Account price</span><strong className="text-white">${saleProduct.price.toFixed(2)}</strong></div>
-              <div className="flex justify-between"><span className="text-slate-400">Commission (5%)</span><strong className="text-gold">${(saleProduct.price * 0.05).toFixed(2)}</strong></div>
-            </div>
-            <div className="rounded-xl border border-gold/30 bg-gold/5 p-4 mb-5 text-sm">
-              <div className="font-semibold text-gold mb-2">Pay commission via</div>
-              <div className="text-slate-300">InstaPay: <strong>01229938115</strong></div>
-              <div className="text-slate-300">Orange Cash: <strong>01229938115</strong></div>
-            </div>
-            <label className="text-xs text-slate-400 block mb-1">Payment reference or transaction number</label>
-            <input value={paymentReference} onChange={(e) => setPaymentReference(e.target.value)} className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-white outline-none mb-5" placeholder="Required for admin verification" />
-            <div className="flex gap-3">
-              <button onClick={() => { setSaleProduct(null); setPaymentReference(""); }} className="flex-1 py-2.5 rounded-xl bg-white/10 text-slate-300">Cancel</button>
-              <button
-                disabled={!paymentReference.trim()}
-                onClick={async () => {
-                  await updateProduct(saleProduct.id, { commissionRate: 0.05, paymentStatus: "pending", paymentReference: paymentReference.trim(), status: "hidden" });
-                  setSaleProduct(null);
-                  setPaymentReference("");
-                }}
-                className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-neon-blue to-neon-purple text-black font-semibold disabled:opacity-40"
-              >Submit payment
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
