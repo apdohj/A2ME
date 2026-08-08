@@ -13,13 +13,16 @@ import {
   deleteAllProducts,
   uploadImage,
   saveSettings,
+  saveGameLogos,
   adjustWallet,
 } from "@/lib/store";
 import { useAuth } from "@/lib/auth-context";
 import { useSettings } from "@/lib/settings-context";
+import { games } from "@/lib/gameData";
+import { GameLogo } from "@/components/GameLogo";
 import type { AppUser, Product, Currency } from "@/lib/types";
 
-type Tab = "users" | "products" | "settings";
+type Tab = "users" | "products" | "games" | "settings";
 
 export default function AdminPanel() {
   const { user: me } = useAuth();
@@ -48,6 +51,7 @@ export default function AdminPanel() {
           [
             { key: "users" as const, label: "👥 Users & Sellers" },
             { key: "products" as const, label: "🛒 Products" },
+            { key: "games" as const, label: "🎮 Game Logos" },
             { key: "settings" as const, label: "⚙️ Site Settings" },
           ]
         ).map((t) => (
@@ -67,6 +71,7 @@ export default function AdminPanel() {
 
       {tab === "users" && <UsersTab me={me?.uid ?? ""} />}
       {tab === "products" && <ProductsTab />}
+      {tab === "games" && <GamesTab gameLogos={settings.gameLogos} />}
       {tab === "settings" && (
         <SettingsTab
           key={settings.siteName + settings.colors.primary + settings.logoUrl}
@@ -357,6 +362,111 @@ function ProductsTab() {
           </div>
         </div>
       ))}
+    </div>
+  );
+}
+
+/* ---------------- Game Logos Tab ---------------- */
+
+function GamesTab({
+  gameLogos,
+}: {
+  gameLogos: Record<string, string> | undefined;
+}) {
+  const [busy, setBusy] = useState<string | null>(null);
+  const [msg, setMsg] = useState<Record<string, string>>({});
+
+  const upload = async (gameId: string, file: File) => {
+    setBusy(gameId);
+    setMsg({});
+    try {
+      const url = await uploadImage(file);
+      await saveGameLogos({ ...(gameLogos ?? {}), [gameId]: url });
+      setMsg({ [gameId]: "✅ Logo updated — appears site-wide instantly." });
+    } catch (error) {
+      const code = (error as { code?: string; message?: string })?.code ?? (error as { message?: string })?.message ?? "unknown";
+      setMsg({ [gameId]: `❌ Upload failed (${code}).` });
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const reset = async (gameId: string) => {
+    setBusy(gameId);
+    setMsg({});
+    try {
+      const next = { ...(gameLogos ?? {}) };
+      delete next[gameId];
+      await saveGameLogos(next);
+      setMsg({ [gameId]: "✅ Reset to default logo." });
+    } catch (error) {
+      const code = (error as { code?: string; message?: string })?.code ?? (error as { message?: string })?.message ?? "unknown";
+      setMsg({ [gameId]: `❌ Reset failed (${code}).` });
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  return (
+    <div>
+      <div className="glass-card p-5 mb-6 text-sm text-slate-300">
+        Upload a logo for each game. Uploaded logos appear everywhere the game
+        icon shows: the header <span className="text-gold">Games</span> menu,
+        the home calculator, the boost page and the marketplace. Games without
+        an upload keep their default logo.
+      </div>
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        {games.map((g) => {
+          const uploaded = gameLogos?.[g.id];
+          return (
+            <div key={g.id} className="glass-card p-5 flex flex-col gap-3">
+              <div className="flex items-center gap-3">
+                <div className="w-16 h-10 rounded-lg bg-black/40 border border-white/10 flex items-center justify-center overflow-hidden shrink-0">
+                  <GameLogo game={g} className="h-6 w-auto max-w-14" />
+                </div>
+                <div className="min-w-0">
+                  <div className="text-sm font-semibold text-white truncate">
+                    {g.name}
+                  </div>
+                  <div
+                    className={`text-[11px] ${
+                      uploaded ? "text-gold" : "text-slate-500"
+                    }`}
+                  >
+                    {uploaded ? "Custom logo ✓" : "Default logo"}
+                  </div>
+                </div>
+              </div>
+              <input
+                type="file"
+                accept="image/*"
+                disabled={busy === g.id}
+                onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  if (f) upload(g.id, f);
+                  e.target.value = "";
+                }}
+                className="w-full text-xs text-slate-300 file:mr-2 file:px-2 file:py-1 file:rounded-md file:border-0 file:bg-gold/20 file:text-gold file:text-[11px] file:font-semibold disabled:opacity-50"
+              />
+              {uploaded && (
+                <button
+                  onClick={() => reset(g.id)}
+                  disabled={busy === g.id}
+                  className="text-[11px] text-red-400 hover:underline text-left disabled:opacity-50"
+                >
+                  Reset to default
+                </button>
+              )}
+              {busy === g.id && (
+                <span className="text-[11px] text-slate-400">Saving...</span>
+              )}
+              {msg[g.id] && (
+                <span className="text-[11px] text-slate-300">{msg[g.id]}</span>
+              )}
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }

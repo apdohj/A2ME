@@ -304,3 +304,9 @@ export async function saveSettings(
     "settings-timeout"
   );
 }
+
+export async function saveGameLogos(
+  gameLogos: Record<string, string>
+): Promise<void> {
+  await saveSettings({ gameLogos });
+}

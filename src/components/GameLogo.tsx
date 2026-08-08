@@ -1,4 +1,7 @@
+"use client";
+
 import { games, type GameConfig } from "@/lib/gameData";
+import { useSettings } from "@/lib/settings-context";
 
 export function GameLogo({
   game,
@@ -7,11 +10,13 @@ export function GameLogo({
   game: GameConfig;
   className?: string;
 }) {
-  if (game.logo) {
+  const { settings } = useSettings();
+  const src = settings.gameLogos?.[game.id] || game.logo;
+  if (src) {
     return (
       // eslint-disable-next-line @next/next/no-img-element
       <img
-        src={game.logo}
+        src={src}
         alt={`${game.name} logo`}
         className={`${className} object-contain`}
         draggable={false}

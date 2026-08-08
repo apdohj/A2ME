@@ -63,6 +63,7 @@ export interface SiteSettings {
   siteName: string;
   tagline: string;
   logoUrl: string;
+  gameLogos?: Record<string, string>;
   colors: {
     primary: string;
     secondary: string;
