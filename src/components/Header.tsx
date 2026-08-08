@@ -7,13 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { games } from "@/lib/gameData";
 import { useAuth } from "@/lib/auth-context";
 import { useSettings } from "@/lib/settings-context";
-
-const navLinks = [
-  { label: "Home", href: "/" },
-  { label: "Marketplace", href: "/marketplace" },
-  { label: "Coaching", href: "/coaching" },
-  { label: "Become a Booster", href: "/booster" },
-];
+import { useLanguage } from "@/lib/language-context";
 
 export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -21,6 +15,13 @@ export default function Header() {
   const { user, profile, logout } = useAuth();
   const { settings } = useSettings();
   const router = useRouter();
+  const { t, toggleLanguage } = useLanguage();
+  const localizedNavLinks = [
+    { label: t.home, href: "/" },
+    { label: t.marketplace, href: "/marketplace" },
+    { label: t.coaching, href: "/coaching" },
+    { label: t.booster, href: "/booster" },
+  ];
 
   const handleLogout = async () => {
     await logout();
@@ -91,7 +92,7 @@ export default function Header() {
                 </AnimatePresence>
               </div>
 
-              {navLinks.map((link) => (
+              {localizedNavLinks.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
@@ -104,6 +105,7 @@ export default function Header() {
 
             {/* Right Side */}
             <div className="hidden md:flex items-center gap-3">
+              <button onClick={toggleLanguage} className="px-3 py-2 text-xs text-gold border border-gold/30 rounded-lg">{t.language}</button>
               <Link
                 href="/sell"
                 className="px-4 py-2 text-sm font-semibold rounded-xl border border-gold/50 text-gold hover:bg-gold/10 transition-colors"
@@ -194,7 +196,7 @@ export default function Header() {
                 </a>
               ))}
               <hr className="border-white/10 my-2" />
-              {navLinks.map((link) => (
+              {localizedNavLinks.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}

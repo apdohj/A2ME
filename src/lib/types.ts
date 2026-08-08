@@ -1,4 +1,13 @@
 export type Role = "client" | "booster" | "admin";
+export type Currency = "EGP" | "USD" | "EUR" | "KWD" | "SAR";
+
+export const currencySymbols: Record<Currency, string> = {
+  EGP: "ج.م",
+  USD: "$",
+  EUR: "€",
+  KWD: "د.ك",
+  SAR: "ر.س",
+};
 
 export interface AppUser {
   uid: string;
@@ -9,6 +18,8 @@ export interface AppUser {
   banned: boolean;
   sellerPaymentStatus?: "not_required" | "pending" | "paid";
   sellerPaymentReference?: string;
+  wallet?: Partial<Record<Currency, number>>;
+  walletCurrency?: Currency;
   createdAt: number;
 }
 
@@ -21,6 +32,7 @@ export interface Product {
   rank: string;
   region: string;
   price: number;
+  currency?: Currency;
   description: string;
   images: string[];
   status: "active" | "sold" | "hidden";

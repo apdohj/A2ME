@@ -181,7 +181,7 @@ export default function MarketplaceContent() {
                 </p>
                 <div className="flex items-center justify-between mt-auto">
                   <div className="text-xl font-black text-white">
-                    ${product.price}
+                    {product.currency ?? "USD"} {product.price}
                   </div>
                   <button
                     onClick={() => contactSeller(product)}

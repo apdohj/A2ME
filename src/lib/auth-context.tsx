@@ -17,7 +17,7 @@ import {
 } from "firebase/auth";
 import { doc, onSnapshot, setDoc } from "firebase/firestore";
 import { auth, firestore } from "./firebase";
-import { getUser } from "./store";
+import { debitSellerActivation, getUser } from "./store";
 import type { AppUser } from "./types";
 
 interface AuthContextValue {
@@ -31,6 +31,7 @@ interface AuthContextValue {
   updateNickname: (nickname: string) => Promise<void>;
   becomeSeller: () => Promise<void>;
   requestSellerAccess: (paymentReference: string) => Promise<void>;
+  activateSellerFromWallet: () => Promise<void>;
   refresh: () => Promise<void>;
 }
 
@@ -147,6 +148,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     );
   };
 
+  const activateSellerFromWallet = async () => {
+    if (!user) return;
+    await debitSellerActivation(user.uid);
+  };
+
   const refresh = async () => {
     if (user) setProfile(await getUser(user.uid));
   };
@@ -164,6 +170,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         updateNickname,
         becomeSeller,
         requestSellerAccess,
+        activateSellerFromWallet,
         refresh,
       }}
     >

@@ -20,6 +20,7 @@ import type {
   Conversation,
   ChatMessage,
   SiteSettings,
+  Currency,
 } from "./types";
 
 function withTimeout<T>(
@@ -57,6 +58,33 @@ export async function setUserProfile(
   data: Partial<AppUser>
 ): Promise<void> {
   await setDoc(doc(firestore, "users", uid), data, { merge: true });
+}
+
+export async function adjustWallet(
+  uid: string,
+  currency: Currency,
+  amount: number
+): Promise<void> {
+  const profile = await getUser(uid);
+  const current = profile?.wallet?.[currency] ?? 0;
+  const next = Math.round((current + amount) * 100) / 100;
+  if (next < 0) throw new Error("wallet-insufficient-funds");
+  await setUserProfile(uid, {
+    wallet: { ...(profile?.wallet ?? {}), [currency]: next },
+    walletCurrency: currency,
+  });
+}
+
+export async function debitSellerActivation(uid: string): Promise<void> {
+  const profile = await getUser(uid);
+  const balance = profile?.wallet?.USD ?? 0;
+  if (balance < 1) throw new Error("wallet-insufficient-funds");
+  await setUserProfile(uid, {
+    isSeller: true,
+    sellerPaymentStatus: "paid",
+    wallet: { ...(profile?.wallet ?? {}), USD: Math.round((balance - 1) * 100) / 100 },
+    walletCurrency: "USD",
+  });
 }
 
 export function subscribeUsers(cb: (users: AppUser[]) => void): () => void {

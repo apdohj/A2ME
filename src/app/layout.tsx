@@ -5,6 +5,7 @@ import "./globals.css";
 import { AuthProvider } from "@/lib/auth-context";
 import { SettingsProvider } from "@/lib/settings-context";
 import FirebaseProvider from "@/components/FirebaseProvider";
+import { LanguageProvider } from "@/lib/language-context";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -18,11 +19,13 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en" dir="ltr" className="dark">
       <body className={`${inter.className} bg-obsidian text-slate-200 antialiased min-h-screen`}>
         <FirebaseProvider />
         <AuthProvider>
-          <SettingsProvider>{children}</SettingsProvider>
+          <SettingsProvider>
+            <LanguageProvider>{children}</LanguageProvider>
+          </SettingsProvider>
         </AuthProvider>
       </body>
     </html>

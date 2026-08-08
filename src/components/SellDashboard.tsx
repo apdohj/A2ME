@@ -13,7 +13,7 @@ import { games, getAllDivisions } from "@/lib/gameData";
 import type { AppUser, Product } from "@/lib/types";
 
 export default function SellDashboard() {
-  const { user, profile, requestSellerAccess, updateNickname } = useAuth();
+  const { user, profile, requestSellerAccess, activateSellerFromWallet, updateNickname } = useAuth();
   const [paymentOpen, setPaymentOpen] = useState(false);
   const [paymentReference, setPaymentReference] = useState("");
   const [paymentSent, setPaymentSent] = useState(false);
@@ -42,12 +42,10 @@ export default function SellDashboard() {
               Payment submitted. An admin will verify it before seller access is enabled.
             </div>
           ) : (
-            <button
-              onClick={() => setPaymentOpen(true)}
-              className="px-8 py-3 rounded-xl bg-gradient-to-r from-neon-blue to-neon-purple text-black font-bold hover:opacity-90 transition-opacity"
-            >
-              Activate Seller Account — $1
-            </button>
+            <div className="flex flex-col sm:flex-row justify-center gap-3">
+              <button onClick={async () => { try { await activateSellerFromWallet(); } catch { setPaymentOpen(true); } }} className="px-6 py-3 rounded-xl bg-gradient-to-r from-neon-blue to-neon-purple text-black font-bold hover:opacity-90 transition-opacity">Pay $1 from wallet ({(profile.wallet?.USD ?? 0).toFixed(2)} USD)</button>
+              <button onClick={() => setPaymentOpen(true)} className="px-6 py-3 rounded-xl border border-gold/40 text-gold font-bold hover:bg-gold/10 transition-opacity">External payment</button>
+            </div>
           )}
         </div>
         {paymentOpen && (
@@ -106,6 +104,7 @@ function SellDashboardInner({
   const [rank, setRank] = useState("");
   const [region, setRegion] = useState("EU");
   const [price, setPrice] = useState("50");
+  const [currency, setCurrency] = useState<"EGP" | "USD" | "EUR" | "KWD" | "SAR">("USD");
   const [description, setDescription] = useState("");
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [uploading, setUploading] = useState(false);
@@ -149,6 +148,7 @@ function SellDashboardInner({
         rank: rank.trim(),
         region,
         price: Math.round(priceNum * 100) / 100,
+      currency,
         description: description.trim(),
         images: urls,
       });
@@ -233,6 +233,12 @@ function SellDashboardInner({
                     {g.name}
                   </option>
                 ))}
+              </select>
+            </div>
+            <div>
+              <label className="text-sm text-slate-400 mb-1 block">Currency</label>
+              <select value={currency} onChange={(e) => setCurrency(e.target.value as typeof currency)} className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-white outline-none">
+                {(["EGP", "USD", "EUR", "KWD", "SAR"] as const).map((item) => <option key={item}>{item}</option>)}
               </select>
             </div>
             <div>

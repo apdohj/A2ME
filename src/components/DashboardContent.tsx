@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { useAuth } from "@/lib/auth-context";
+import WalletPanel from "@/components/WalletPanel";
 
 export default function DashboardContent() {
   const { user, profile, banned, logout, updateNickname } = useAuth();
@@ -62,6 +63,8 @@ export default function DashboardContent() {
           Manage your account, nickname and seller status.
         </p>
       </motion.div>
+
+      <WalletPanel />
 
       <div className="grid md:grid-cols-2 gap-6">
         {/* Account Info */}

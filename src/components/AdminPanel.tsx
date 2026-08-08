@@ -13,10 +13,11 @@ import {
   deleteAllProducts,
   uploadImage,
   saveSettings,
+  adjustWallet,
 } from "@/lib/store";
 import { useAuth } from "@/lib/auth-context";
 import { useSettings } from "@/lib/settings-context";
-import type { AppUser, Product } from "@/lib/types";
+import type { AppUser, Product, Currency } from "@/lib/types";
 
 type Tab = "users" | "products" | "settings";
 
@@ -81,6 +82,8 @@ export default function AdminPanel() {
 function UsersTab({ me }: { me: string }) {
   const [users, setUsers] = useState<AppUser[]>([]);
   const [busy, setBusy] = useState<string | null>(null);
+  const [walletCurrency, setWalletCurrency] = useState<Currency>("USD");
+  const [walletAmount, setWalletAmount] = useState("1");
 
   useEffect(() => {
     const unsub = subscribeUsers((u) => setUsers(u));
@@ -96,6 +99,14 @@ function UsersTab({ me }: { me: string }) {
 
   return (
     <div className="glass-card overflow-hidden">
+      <div className="p-4 border-b border-white/10 flex flex-wrap items-center gap-2">
+        <span className="text-xs text-slate-400">Wallet adjustment:</span>
+        <select value={walletCurrency} onChange={(e) => setWalletCurrency(e.target.value as Currency)} className="px-2 py-1 rounded bg-white/5 text-xs text-white">
+          {(["EGP", "USD", "EUR", "KWD", "SAR"] as Currency[]).map((currency) => <option key={currency}>{currency}</option>)}
+        </select>
+        <input value={walletAmount} onChange={(e) => setWalletAmount(e.target.value)} type="number" min="0.01" step="0.01" className="w-20 px-2 py-1 rounded bg-white/5 text-xs text-white" />
+        <span className="text-[11px] text-slate-500">Use + or - beside each customer.</span>
+      </div>
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
@@ -152,6 +163,8 @@ function UsersTab({ me }: { me: string }) {
                       {busy === u.uid && (
                         <span className="text-[11px] text-slate-500">...</span>
                       )}
+                      <button onClick={() => act(u.uid, {}, () => adjustWallet(u.uid, walletCurrency, Number(walletAmount)))} className="px-2 py-1 rounded-lg bg-green-500/10 border border-green-500/30 text-green-400 text-[11px] font-semibold">+ Wallet</button>
+                      <button onClick={() => act(u.uid, {}, () => adjustWallet(u.uid, walletCurrency, -Number(walletAmount)))} className="px-2 py-1 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-[11px] font-semibold">- Wallet</button>
                       {!u.isSeller && (
                         <button
                           onClick={() => act(u.uid, { isSeller: true })}
