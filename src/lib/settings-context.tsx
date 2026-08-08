@@ -13,7 +13,7 @@ import type { SiteSettings } from "./types";
 export const defaultSettings: SiteSettings = {
   siteName: "A2ME",
   tagline: "Level Up Your Game",
-  logoUrl: "",
+  logoUrl: "/logo.svg",
   colors: {
     primary: "#f5c518",
     secondary: "#c9a227",

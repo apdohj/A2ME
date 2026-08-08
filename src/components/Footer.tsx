@@ -14,9 +14,9 @@ export default function Footer() {
             <div className="flex items-center gap-2 mb-4">
               {settings.logoUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={settings.logoUrl} alt={settings.siteName} className="w-8 h-8 rounded-lg object-contain" />
+                <img src={settings.logoUrl} alt={settings.siteName} className="w-36 h-12 rounded-lg object-contain" />
               ) : (
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-neon-blue to-neon-purple flex items-center justify-center font-black text-black text-sm">A</div>
+                <img src="/logo.svg" alt={settings.siteName} className="w-36 h-12 rounded-lg object-contain" />
               )}
               <span className="text-lg font-bold bg-gradient-to-r from-neon-blue to-neon-purple bg-clip-text text-transparent">
                 {settings.siteName}

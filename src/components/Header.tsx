@@ -39,12 +39,10 @@ export default function Header() {
                 <img
                   src={settings.logoUrl}
                   alt={settings.siteName}
-                  className="w-9 h-9 rounded-lg object-contain bg-white/10 border border-white/10"
+                  className="w-28 h-10 rounded-lg object-contain bg-white/10 border border-white/10"
                 />
               ) : (
-                <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-neon-blue to-neon-purple flex items-center justify-center font-black text-black text-lg">
-                  A
-                </div>
+                <img src="/logo.svg" alt={settings.siteName} className="w-28 h-10 rounded-lg object-contain bg-white/10 border border-white/10" />
               )}
               <span className="text-xl font-bold bg-gradient-to-r from-neon-blue to-neon-purple bg-clip-text text-transparent">
                 {settings.siteName}
