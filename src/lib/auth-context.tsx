@@ -12,6 +12,7 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut,
+  deleteUser,
   type User,
 } from "firebase/auth";
 import { doc, onSnapshot, setDoc } from "firebase/firestore";
@@ -41,65 +42,77 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [banned, setBanned] = useState(false);
 
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, async (u) => {
+    let unsubProfile: (() => void) | undefined;
+    const unsubAuth = onAuthStateChanged(auth, async (u) => {
       setUser(u);
+      setLoading(true);
+      unsubProfile?.();
+      unsubProfile = undefined;
+
       if (!u) {
         setProfile(null);
         setBanned(false);
         setLoading(false);
         return;
       }
-      const p = await getUser(u.uid);
-      if (!p) {
-        await setDoc(doc(firestore, "users", u.uid), {
-          uid: u.uid,
-          email: u.email ?? "",
-          nickname: u.displayName ?? u.email?.split("@")[0] ?? "Player",
-          role: "client",
-          isSeller: false,
-          banned: false,
-          createdAt: Date.now(),
-        });
+
+      const userRef = doc(firestore, "users", u.uid);
+      try {
+        const existingProfile = await getUser(u.uid);
+        if (!existingProfile) {
+          await setDoc(userRef, {
+            uid: u.uid,
+            email: u.email ?? "",
+            nickname: u.displayName ?? u.email?.split("@")[0] ?? "Player",
+            role: "client",
+            isSeller: false,
+            banned: false,
+            createdAt: Date.now(),
+          });
+        }
+
+        unsubProfile = onSnapshot(
+          userRef,
+          (snap) => {
+            if (!snap.exists()) return;
+            const nextProfile = { uid: snap.id, ...snap.data() } as AppUser;
+            setProfile(nextProfile);
+            setBanned(!!nextProfile.banned);
+            setLoading(false);
+          },
+          () => setLoading(false)
+        );
+      } catch {
+        setProfile(null);
+        setLoading(false);
       }
-      setLoading(false);
     });
 
-    const onDoc = () => {
-      if (!user) return;
-      const unsub = onSnapshot(
-        doc(firestore, "users", user.uid),
-        (snap) => {
-          if (snap.exists()) {
-            const p = { uid: snap.id, ...snap.data() } as AppUser;
-            setProfile(p);
-            setBanned(!!p.banned);
-          }
-        },
-        () => {}
-      );
-      return unsub;
-    };
-
-    let unsubProfile: (() => void) | undefined;
-    if (user) unsubProfile = onDoc();
-
     return () => {
-      unsub();
+      unsubAuth();
       unsubProfile?.();
     };
-  }, [user]);
+  }, []);
 
   const signup = async (email: string, password: string, nickname: string) => {
     const cred = await createUserWithEmailAndPassword(auth, email, password);
-    await setDoc(doc(firestore, "users", cred.user.uid), {
-      uid: cred.user.uid,
-      email,
-      nickname: nickname || email.split("@")[0],
-      role: "client",
-      isSeller: false,
-      banned: false,
-      createdAt: Date.now(),
-    });
+    try {
+      await setDoc(doc(firestore, "users", cred.user.uid), {
+        uid: cred.user.uid,
+        email,
+        nickname: nickname || email.split("@")[0],
+        role: "client",
+        isSeller: false,
+        banned: false,
+        createdAt: Date.now(),
+      });
+    } catch (error) {
+      await deleteUser(cred.user).catch(() => undefined);
+      throw Object.assign(new Error("profile-write-failed"), {
+        code: "profile-write-failed",
+        cause: error,
+      });
+    }
   };
 
   const login = async (email: string, password: string) => {

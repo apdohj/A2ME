@@ -1,22 +1,29 @@
+"use client";
+
 import Link from "next/link";
+import { useSettings } from "@/lib/settings-context";
 
 export default function Footer() {
+  const { settings } = useSettings();
+
   return (    <footer className="border-t border-white/5 bg-charcoal/50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-10">
           {/* Brand */}
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-neon-blue to-neon-purple flex items-center justify-center font-black text-black text-sm">
-                A
-              </div>
+              {settings.logoUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={settings.logoUrl} alt={settings.siteName} className="w-8 h-8 rounded-lg object-contain" />
+              ) : (
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-neon-blue to-neon-purple flex items-center justify-center font-black text-black text-sm">A</div>
+              )}
               <span className="text-lg font-bold bg-gradient-to-r from-neon-blue to-neon-purple bg-clip-text text-transparent">
-                A2ME
+                {settings.siteName}
               </span>
             </div>
             <p className="text-sm text-slate-400 leading-relaxed mb-4">
-              Professional gaming rank boosting services. Fast, safe, and
-              affordable for all major competitive titles.
+              {settings.tagline}
             </p>
             <div className="flex gap-3">
               {["Discord", "Twitter", "Instagram"].map((social) => (
@@ -119,7 +126,7 @@ export default function Footer() {
 
         <div className="mt-12 pt-8 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-sm text-slate-500">
-            © 2026 A2ME. All rights reserved.
+            © 2026 {settings.siteName}. All rights reserved.
           </p>
           <div className="flex items-center gap-4 text-sm text-slate-500">
             <span>💳 Visa</span>

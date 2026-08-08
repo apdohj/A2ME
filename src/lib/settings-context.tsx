@@ -47,7 +47,14 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const unsub = subscribeSettings((s) => {
-      if (s) setSettings({ ...defaultSettings, ...s });
+      if (s) {
+        setSettings({
+          ...defaultSettings,
+          ...s,
+          colors: { ...defaultSettings.colors, ...s.colors },
+          texts: { ...defaultSettings.texts, ...s.texts },
+        });
+      }
     });
     return unsub;
   }, []);

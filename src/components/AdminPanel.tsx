@@ -10,6 +10,7 @@ import {
   restoreProductsBySeller,
   updateProduct,
   deleteProduct,
+  deleteAllProducts,
   uploadImage,
   saveSettings,
 } from "@/lib/store";
@@ -239,8 +240,24 @@ function ProductsTab() {
     setBusy(null);
   };
 
+  const clearProducts = async () => {
+    if (!window.confirm("Delete every product from the marketplace?")) return;
+    setBusy("all");
+    await deleteAllProducts();
+    setBusy(null);
+  };
+
   return (
     <div className="space-y-3">
+      <div className="flex justify-end">
+        <button
+          onClick={clearProducts}
+          disabled={busy === "all" || products.length === 0}
+          className="px-3 py-2 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-semibold disabled:opacity-40"
+        >
+          {busy === "all" ? "Deleting..." : "Delete all products"}
+        </button>
+      </div>
       {products.length === 0 && (
         <div className="glass-card p-10 text-center text-slate-400">
           No products in the database yet.
@@ -339,8 +356,9 @@ function SettingsTab({ settings }: { settings: ReturnType<typeof useSettings>["s
     try {
       const url = await uploadImage(file);
       setLogoUrl(url);
-    } catch {
-      setMsg("Logo upload failed. Check Firebase Storage is enabled.");
+    } catch (error) {
+      const code = (error as { code?: string; message?: string })?.code ?? (error as { message?: string })?.message ?? "unknown";
+      setMsg(`Logo upload failed (${code}). Check Firebase Storage rules and configuration.`);
     } finally {
       setLogoUploading(false);
     }
@@ -358,8 +376,9 @@ function SettingsTab({ settings }: { settings: ReturnType<typeof useSettings>["s
         texts,
       });
       setMsg("✅ Settings saved. The site updates immediately.");
-    } catch {
-      setMsg("Failed to save. Check that Firestore is enabled in Firebase.");
+    } catch (error) {
+      const code = (error as { code?: string; message?: string })?.code ?? (error as { message?: string })?.message ?? "unknown";
+      setMsg(`Save failed (${code}). Check Firebase Firestore rules and configuration.`);
     } finally {
       setBusy(false);
     }

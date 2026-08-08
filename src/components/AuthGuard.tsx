@@ -11,7 +11,7 @@ export default function AuthGuard({
   children: React.ReactNode;
   sellerOnly?: boolean;
 }) {
-  const { user, profile, loading } = useAuth();
+  const { user, profile, loading, banned } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -31,6 +31,17 @@ export default function AuthGuard({
   }
 
   if (!user) return null;
+
+  if (banned || profile?.banned) {
+    return (
+      <div className="max-w-2xl mx-auto px-4 py-24 text-center">
+        <h2 className="text-2xl font-bold text-white mb-4">Account suspended</h2>
+        <p className="text-slate-400">
+          This account has been suspended by an administrator. Contact support for help.
+        </p>
+      </div>
+    );
+  }
 
   if (sellerOnly && !profile?.isSeller && profile?.role !== "admin") {
     return (

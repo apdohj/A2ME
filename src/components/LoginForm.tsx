@@ -30,8 +30,12 @@ function LoginFormInner() {
         setError("Wrong email or password.");
       } else if (code === "auth/too-many-requests") {
         setError("Too many attempts. Please try again later.");
+      } else if (code === "auth/configuration-not-found") {
+        setError("Firebase Authentication is not configured for this app. Enable Email/Password sign-in in Firebase Console.");
+      } else if (code === "auth/operation-not-allowed") {
+        setError("Email/password sign-in is disabled in Firebase Authentication.");
       } else {
-        setError("Login failed. Please check your internet connection.");
+        setError(`Login failed${code ? ` (${code})` : ""}. Check Firebase settings and try again.`);
       }
     } finally {
       setBusy(false);

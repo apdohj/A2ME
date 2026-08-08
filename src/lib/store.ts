@@ -22,6 +22,28 @@ import type {
   SiteSettings,
 } from "./types";
 
+function withTimeout<T>(
+  promise: Promise<T>,
+  message: string,
+  timeoutMs = 15000
+): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<T>((_, reject) =>
+      setTimeout(() => reject(new Error(message)), timeoutMs)
+    ),
+  ]);
+}
+
+function fileToDataUrl(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result));
+    reader.onerror = () => reject(new Error("image-read-failed"));
+    reader.readAsDataURL(file);
+  });
+}
+
 /* ---------------- Users ---------------- */
 
 export async function getUser(uid: string): Promise<AppUser | null> {
@@ -57,8 +79,12 @@ export function subscribeUsers(cb: (users: AppUser[]) => void): () => void {
 export async function uploadImage(file: File): Promise<string> {
   const name = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.]/g, "_")}`;
   const fileRef = ref(storage, `products/${name}`);
-  await uploadBytes(fileRef, file);
-  return getDownloadURL(fileRef);
+  try {
+    await withTimeout(uploadBytes(fileRef, file), "storage-timeout", 5000);
+    return withTimeout(getDownloadURL(fileRef), "storage-url-timeout", 5000);
+  } catch {
+    return fileToDataUrl(file);
+  }
 }
 
 export async function createProduct(
@@ -97,6 +123,11 @@ export async function updateProduct(
 
 export async function deleteProduct(id: string): Promise<void> {
   await deleteDoc(doc(firestore, "products", id));
+}
+
+export async function deleteAllProducts(): Promise<void> {
+  const snap = await getDocs(collection(firestore, "products"));
+  await Promise.all(snap.docs.map((product) => deleteDoc(product.ref)));
 }
 
 export async function setProductStatus(
@@ -240,5 +271,8 @@ export function subscribeSettings(cb: (s: SiteSettings | null) => void): () => v
 export async function saveSettings(
   patch: Partial<SiteSettings>
 ): Promise<void> {
-  await setDoc(SETTINGS_REF, patch, { merge: true });
+  await withTimeout(
+    setDoc(SETTINGS_REF, patch, { merge: true }),
+    "settings-timeout"
+  );
 }

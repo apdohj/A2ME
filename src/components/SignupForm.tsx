@@ -32,8 +32,14 @@ export default function SignupForm() {
         setError("This email is already registered. Try signing in.");
       } else if (code === "auth/invalid-email") {
         setError("Please enter a valid email address.");
+      } else if (code === "auth/operation-not-allowed") {
+        setError("Email sign-up is disabled in Firebase Authentication.");
+      } else if (code === "auth/configuration-not-found") {
+        setError("Firebase Authentication is not configured for this app. Enable Email/Password sign-in in Firebase Console.");
+      } else if (code === "profile-write-failed" || code === "permission-denied") {
+        setError("Account creation is blocked by Firebase Firestore permissions. Update the Firebase rules.");
       } else {
-        setError("Sign up failed. Please check your internet connection.");
+        setError(`Sign up failed${code ? ` (${code})` : ""}. Check Firebase settings and try again.`);
       }
     } finally {
       setBusy(false);
