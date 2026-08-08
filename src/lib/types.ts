@@ -23,6 +23,9 @@ export interface Product {
   images: string[];
   status: "active" | "sold" | "hidden";
   sellerBanned: boolean;
+  commissionRate?: number;
+  paymentStatus?: "not_required" | "pending" | "paid";
+  paymentReference?: string;
   createdAt: number;
 }
 

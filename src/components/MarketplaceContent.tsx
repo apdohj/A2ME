@@ -4,10 +4,11 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { subscribeProducts, getOrCreateConversation } from "@/lib/store";
+import { games } from "@/lib/gameData";
 import { useAuth } from "@/lib/auth-context";
 import type { Product } from "@/lib/types";
 
-const gameFilters = ["All", "Valorant", "League of Legends", "CS2", "Overwatch 2", "Other"];
+const gameFilters = ["All", ...games.map((game) => game.name), "Other"];
 const regionFilters = ["All", "EU", "NA", "ASIA", "ME"];
 
 export default function MarketplaceContent() {

@@ -57,6 +57,13 @@ export default function HeroCalculator() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.7 }}
           >
+            <div className="mb-8 flex items-center justify-start">
+              <img
+                src={settings.logoUrl || "/logo.svg"}
+                alt={`${settings.siteName} logo`}
+                className="w-full max-w-[430px] h-auto max-h-36 object-contain object-left drop-shadow-[0_0_28px_rgba(245,197,24,0.28)]"
+              />
+            </div>
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass-card text-xs text-neon-blue mb-6">
               <span className="w-2 h-2 rounded-full bg-neon-green animate-pulse" />
               {settings.texts.heroBadge}
