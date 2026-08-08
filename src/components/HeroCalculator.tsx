@@ -9,8 +9,10 @@ import {
   getRankIcon,
   calculatePrice,
 } from "@/lib/gameData";
+import { useSettings } from "@/lib/settings-context";
 
 export default function HeroCalculator() {
+  const { settings } = useSettings();
   const [selectedGame, setSelectedGame] = useState(0);
   const [fromRank, setFromRank] = useState(0);
   const [toRank, setToRank] = useState(3);
@@ -57,21 +59,20 @@ export default function HeroCalculator() {
           >
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass-card text-xs text-neon-blue mb-6">
               <span className="w-2 h-2 rounded-full bg-neon-green animate-pulse" />
-              2,347 orders completed this week
+              {settings.texts.heroBadge}
             </div>
 
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black leading-tight mb-6">
-              Level Up Your{" "}
+              {settings.texts.heroTitle}{" "}
               <span className="bg-gradient-to-r from-neon-blue to-neon-purple bg-clip-text text-transparent neon-text">
-                Rank
+                {settings.texts.heroHighlight}
               </span>
               <br />
-              Fast &amp; Secure
+              {settings.texts.heroTitle2}
             </h1>
 
             <p className="text-lg text-slate-400 mb-8 max-w-lg">
-              Professional boosting services for your favorite games. VPN
-              protected, 24/7 support, and real-time progress tracking.
+              {settings.texts.heroSubtitle}
             </p>
 
             {/* Trust Points */}

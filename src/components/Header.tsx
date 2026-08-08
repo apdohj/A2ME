@@ -2,8 +2,11 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { games } from "@/lib/gameData";
+import { useAuth } from "@/lib/auth-context";
+import { useSettings } from "@/lib/settings-context";
 
 const navLinks = [
   { label: "Home", href: "/" },
@@ -15,6 +18,14 @@ const navLinks = [
 export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [gamesOpen, setGamesOpen] = useState(false);
+  const { user, profile, logout } = useAuth();
+  const { settings } = useSettings();
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    await logout();
+    router.push("/");
+  };
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50">
@@ -23,11 +34,20 @@ export default function Header() {
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2 group">
-              <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-neon-blue to-neon-purple flex items-center justify-center font-black text-white text-lg">
-                A
-              </div>
+              {settings.logoUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={settings.logoUrl}
+                  alt={settings.siteName}
+                  className="w-9 h-9 rounded-lg object-contain bg-white/10 border border-white/10"
+                />
+              ) : (
+                <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-neon-blue to-neon-purple flex items-center justify-center font-black text-black text-lg">
+                  A
+                </div>
+              )}
               <span className="text-xl font-bold bg-gradient-to-r from-neon-blue to-neon-purple bg-clip-text text-transparent">
-                A2ME
+                {settings.siteName}
               </span>
             </Link>
 
@@ -73,28 +93,69 @@ export default function Header() {
                 </AnimatePresence>
               </div>
 
-              {navLinks.slice(1).map((link) => (
-                <a
+              {navLinks.map((link) => (
+                <Link
                   key={link.href}
                   href={link.href}
                   className="px-4 py-2 text-sm text-slate-300 hover:text-neon-blue transition-colors rounded-lg hover:bg-white/5"
                 >
                   {link.label}
-                </a>
+                </Link>
               ))}
             </nav>
 
             {/* Right Side */}
             <div className="hidden md:flex items-center gap-3">
-              <button className="px-4 py-2 text-sm text-slate-300 hover:text-white transition-colors">
-                Sign In
-              </button>
-              <a
-                href="/dashboard"
-                className="px-5 py-2 text-sm font-semibold rounded-xl bg-gradient-to-r from-neon-blue to-neon-purple text-white hover:opacity-90 transition-opacity neon-glow"
+              <Link
+                href="/sell"
+                className="px-4 py-2 text-sm font-semibold rounded-xl border border-gold/50 text-gold hover:bg-gold/10 transition-colors"
               >
-                Dashboard
-              </a>
+                💰 Sell Accounts
+              </Link>
+
+              {user ? (
+                <>
+                  <Link
+                    href="/messages"
+                    className="px-4 py-2 text-sm text-slate-300 hover:text-white transition-colors"
+                  >
+                    Messages
+                  </Link>
+                  <Link
+                    href="/dashboard"
+                    className="px-4 py-2 text-sm text-slate-300 hover:text-white transition-colors"
+                  >
+                    {profile?.nickname || "Account"}
+                  </Link>
+                  <button
+                    onClick={handleLogout}
+                    className="px-3 py-2 text-sm text-slate-400 hover:text-white transition-colors"
+                  >
+                    Logout
+                  </button>
+                  <Link
+                    href="/dashboard"
+                    className="px-5 py-2 text-sm font-semibold rounded-xl bg-gradient-to-r from-neon-blue to-neon-purple text-black hover:opacity-90 transition-opacity neon-glow"
+                  >
+                    Dashboard
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <Link
+                    href="/login"
+                    className="px-4 py-2 text-sm text-slate-300 hover:text-white transition-colors"
+                  >
+                    Sign In
+                  </Link>
+                  <Link
+                    href="/signup"
+                    className="px-5 py-2 text-sm font-semibold rounded-xl bg-gradient-to-r from-neon-blue to-neon-purple text-black hover:opacity-90 transition-opacity neon-glow"
+                  >
+                    Create Account
+                  </Link>
+                </>
+              )}
             </div>
 
             {/* Mobile Toggle */}
@@ -135,22 +196,59 @@ export default function Header() {
                 </a>
               ))}
               <hr className="border-white/10 my-2" />
-              {navLinks.slice(1).map((link) => (
-                <a
+              {navLinks.map((link) => (
+                <Link
                   key={link.href}
                   href={link.href}
                   className="block px-4 py-2.5 rounded-lg hover:bg-white/5 text-sm text-slate-300"
                 >
                   {link.label}
-                </a>
+                </Link>
               ))}
               <hr className="border-white/10 my-2" />
-              <a
-                href="/dashboard"
-                className="block px-4 py-2.5 rounded-xl bg-gradient-to-r from-neon-blue to-neon-purple text-white text-center text-sm font-semibold"
+              <Link
+                href="/sell"
+                className="block px-4 py-2.5 rounded-xl border border-gold/50 text-gold text-center text-sm font-semibold"
               >
-                Dashboard
-              </a>
+                💰 Sell Accounts
+              </Link>
+              {user ? (
+                <>
+                  <Link
+                    href="/messages"
+                    className="block px-4 py-2.5 rounded-lg hover:bg-white/5 text-sm text-slate-300 text-center"
+                  >
+                    Messages
+                  </Link>
+                  <Link
+                    href="/dashboard"
+                    className="block px-4 py-2.5 rounded-xl bg-gradient-to-r from-neon-blue to-neon-purple text-black text-center text-sm font-semibold"
+                  >
+                    Dashboard
+                  </Link>
+                  <button
+                    onClick={handleLogout}
+                    className="block w-full px-4 py-2.5 text-sm text-slate-400 text-center"
+                  >
+                    Logout
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link
+                    href="/login"
+                    className="block px-4 py-2.5 rounded-lg hover:bg-white/5 text-sm text-slate-300 text-center"
+                  >
+                    Sign In
+                  </Link>
+                  <Link
+                    href="/signup"
+                    className="block px-4 py-2.5 rounded-xl bg-gradient-to-r from-neon-blue to-neon-purple text-black text-center text-sm font-semibold"
+                  >
+                    Create Account
+                  </Link>
+                </>
+              )}
             </div>
           </motion.div>
         )}

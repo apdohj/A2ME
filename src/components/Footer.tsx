@@ -1,12 +1,13 @@
+import Link from "next/link";
+
 export default function Footer() {
-  return (
-    <footer className="border-t border-white/5 bg-charcoal/50">
+  return (    <footer className="border-t border-white/5 bg-charcoal/50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-10">
           {/* Brand */}
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-neon-blue to-neon-purple flex items-center justify-center font-black text-white text-sm">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-neon-blue to-neon-purple flex items-center justify-center font-black text-black text-sm">
                 A
               </div>
               <span className="text-lg font-bold bg-gradient-to-r from-neon-blue to-neon-purple bg-clip-text text-transparent">
@@ -54,14 +55,14 @@ export default function Footer() {
                 </a>
               </li>
               <li>
-                <a href="/coaching" className="hover:text-neon-blue transition-colors">
-                  Coaching
-                </a>
+                <Link href="/marketplace" className="hover:text-neon-blue transition-colors">
+                  Account Marketplace
+                </Link>
               </li>
               <li>
-                <a href="/marketplace" className="hover:text-neon-blue transition-colors">
-                  Account Marketplace
-                </a>
+                <Link href="/sell" className="hover:text-neon-blue transition-colors">
+                  Sell Accounts
+                </Link>
               </li>
             </ul>
           </div>
@@ -76,19 +77,19 @@ export default function Footer() {
                 </a>
               </li>
               <li>
-                <a href="#" className="hover:text-neon-blue transition-colors">
-                  Contact Us
-                </a>
+                <Link href="/login" className="hover:text-neon-blue transition-colors">
+                  Sign In
+                </Link>
               </li>
               <li>
-                <a href="#" className="hover:text-neon-blue transition-colors">
-                  Live Chat
-                </a>
+                <Link href="/signup" className="hover:text-neon-blue transition-colors">
+                  Create Account
+                </Link>
               </li>
               <li>
-                <a href="#" className="hover:text-neon-blue transition-colors">
-                  Refund Policy
-                </a>
+                <Link href="/messages" className="hover:text-neon-blue transition-colors">
+                  Messages
+                </Link>
               </li>
             </ul>
           </div>
@@ -126,6 +127,17 @@ export default function Footer() {
             <span>💰 PayPal</span>
             <span>₿ Crypto</span>
           </div>
+        </div>
+
+        {/* Hidden admin access — very small, at the very bottom */}
+        <div className="flex justify-center pt-4">
+          <a
+            href="/admin"
+            title="Admin"
+            className="text-[9px] text-slate-700 hover:text-gold transition-colors select-none"
+          >
+            ●
+          </a>
         </div>
       </div>
     </footer>

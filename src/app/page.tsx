@@ -1,9 +1,8 @@
 import Header from "@/components/Header";
 import HeroCalculator from "@/components/HeroCalculator";
-import SocialProofBar from "@/components/SocialProofBar";
 import HowItWorks from "@/components/HowItWorks";
+import SellCTA from "@/components/SellCTA";
 import ExtraOptions from "@/components/ExtraOptions";
-import LiveOrderFeed from "@/components/LiveOrderFeed";
 import TopBoosters from "@/components/TopBoosters";
 import FAQ from "@/components/FAQ";
 import Footer from "@/components/Footer";
@@ -14,10 +13,9 @@ export default function HomePage() {
       <Header />
       <main>
         <HeroCalculator />
-        <SocialProofBar />
         <HowItWorks />
+        <SellCTA />
         <ExtraOptions />
-        <LiveOrderFeed />
         <TopBoosters />
         <FAQ />
       </main>
