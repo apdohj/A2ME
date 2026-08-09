@@ -1,11 +1,11 @@
-import Header from "@/components/Header";
+import Navbar from "@/components/home/Navbar";
 import DashboardContent from "@/components/DashboardContent";
 
 export default function DashboardPage() {
   return (
     <>
-      <Header />
-      <main className="pt-20 min-h-screen">
+      <Navbar />
+      <main className="min-h-screen">
         <DashboardContent />
       </main>
     </>

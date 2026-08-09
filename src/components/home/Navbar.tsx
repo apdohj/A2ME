@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Menu,
@@ -17,22 +17,50 @@ import {
   BadgeDollarSign,
   HelpCircle,
   Headphones,
+  ChevronDown,
+  GraduationCap,
+  Crown,
+  Wallet,
+  MessageCircle,
+  LogOut,
+  LayoutDashboard,
+  Gamepad2,
 } from "lucide-react";
+import { games } from "@/lib/gameData";
+import { useAuth } from "@/lib/auth-context";
+import { useCurrency } from "@/lib/currency-context";
+import { CURRENCIES } from "@/lib/currency";
+import { currencySymbols, type Currency } from "@/lib/types";
 
 const NAV = [
   { label: "Home", href: "/", icon: Home },
   { label: "Browse Accounts", href: "/marketplace", icon: Store },
   { label: "Sell Account", href: "/sell", icon: BadgeDollarSign },
+  { label: "Coaching", href: "/coaching", icon: GraduationCap },
+  { label: "Boosters", href: "/booster", icon: Crown },
   { label: "How It Works", href: "/#how-it-works", icon: HelpCircle },
   { label: "Support", href: "/support", icon: Headphones },
 ];
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
+  const [gamesOpen, setGamesOpen] = useState(false);
+  const [currencyOpen, setCurrencyOpen] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
+  const { user, profile, logout } = useAuth();
+  const { currency, setCurrency, format } = useCurrency();
+  const walletFrom = (profile?.walletCurrency ?? "USD") as Currency;
+  const walletBalance = profile?.wallet?.[walletFrom] ?? 0;
 
   const isActive = (href: string) =>
-    href === "/" ? pathname === "/" : pathname === href;
+    href === "/" ? pathname === "/" : pathname.startsWith(href.replace(/\/$/, ""));
+
+  const handleLogout = async () => {
+    setOpen(false);
+    await logout();
+    router.push("/");
+  };
 
   return (
     <header className="sticky top-0 z-50 bg-a2-bg/85 backdrop-blur-xl border-b border-a2-border">
@@ -51,20 +79,9 @@ export default function Navbar() {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/home/header-logo.png"
-                alt="A2ME"
-                className="h-9 w-9 lg:h-11 lg:w-11 object-contain rounded-lg bg-a2-card border border-a2-border p-1 group-hover:border-a2-gold/50 transition-colors"
+                alt="A2ME — Middle East Gaming Accounts"
+                className="h-10 lg:h-12 w-auto object-contain drop-shadow-[0_0_14px_rgba(255,201,40,0.25)] group-hover:drop-shadow-[0_0_18px_rgba(255,201,40,0.4)] transition-[filter]"
               />
-              <span className="flex flex-col leading-none">
-                <span className="font-logo text-lg lg:text-xl font-bold text-a2-gold">
-                  A2ME
-                </span>
-                <span className="mt-1 text-[8px] lg:text-[9px] font-semibold tracking-[0.3em] text-a2-light/70">
-                  MIDDLE EAST
-                </span>
-                <span className="mt-0.5 text-[8px] lg:text-[9px] font-semibold tracking-[0.3em] text-a2-light/70">
-                  GAMING ACCOUNTS
-                </span>
-              </span>
             </Link>
           </div>
 
@@ -77,7 +94,7 @@ export default function Navbar() {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`relative flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  className={`relative flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                     active
                       ? "text-a2-gold"
                       : "text-a2-light/70 hover:text-white"
@@ -86,21 +103,114 @@ export default function Navbar() {
                   <Icon className="w-4 h-4" />
                   {item.label}
                   {active && (
-                    <span className="absolute -bottom-[1px] left-3.5 right-3.5 h-0.5 rounded-full bg-a2-gold a2-glow-soft" />
+                    <span className="absolute -bottom-[1px] left-3 right-3 h-0.5 rounded-full bg-a2-gold a2-glow-soft" />
                   )}
                 </Link>
               );
             })}
+
+            {/* Games dropdown */}
+            <div
+              className="relative"
+              onMouseEnter={() => setGamesOpen(true)}
+              onMouseLeave={() => setGamesOpen(false)}
+            >
+              <button className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-a2-light/70 hover:text-white transition-colors">
+                <Gamepad2 className="w-4 h-4" />
+                Games
+                <ChevronDown
+                  className={`w-3.5 h-3.5 transition-transform ${
+                    gamesOpen ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+              <AnimatePresence>
+                {gamesOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    className="absolute top-full left-0 mt-2 p-2 min-w-[260px] max-h-[75vh] overflow-y-auto rounded-2xl bg-a2-bg2 border border-a2-border shadow-2xl shadow-black/60 a2-glow-soft"
+                  >
+                    <div className="px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-a2-light/50 border-b border-a2-border mb-1.5">
+                      Choose your game
+                    </div>
+                    {games.map((game) => (
+                      <a
+                        key={game.id}
+                        href={`/boost?game=${game.id}`}
+                        className="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-white/[0.06] text-sm text-a2-light/80 hover:text-a2-gold transition-colors"
+                      >
+                        <span className="w-9 h-9 rounded-lg bg-black/40 border border-a2-border flex items-center justify-center shrink-0 overflow-hidden">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={`/home/games/${game.id}.png`}
+                            alt={game.name}
+                            className="h-6 w-6 object-contain"
+                          />
+                        </span>
+                        <span className="whitespace-nowrap font-medium">
+                          {game.name}
+                        </span>
+                      </a>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           </nav>
 
           {/* Right: desktop */}
           <div className="hidden lg:flex items-center gap-1.5">
-            <button
-              aria-label="Search"
-              className="p-2 rounded-lg text-a2-light/70 hover:text-a2-gold hover:bg-white/5 transition-colors"
-            >
-              <Search className="w-5 h-5" />
-            </button>
+            {/* Currency selector */}
+            <div className="relative">
+              <button
+                onClick={() => setCurrencyOpen(!currencyOpen)}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-a2-border text-a2-light/80 hover:border-a2-gold/40 hover:text-a2-gold transition-colors text-sm font-semibold"
+              >
+                <span className="text-a2-gold">{currencySymbols[currency]}</span>
+                {currency}
+                <ChevronDown
+                  className={`w-3.5 h-3.5 text-a2-light/50 transition-transform ${
+                    currencyOpen ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+              <AnimatePresence>
+                {currencyOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    className="absolute right-0 top-full mt-2 p-1 min-w-[180px] rounded-xl bg-a2-bg2 border border-a2-border shadow-2xl shadow-black/60"
+                  >
+                    <div className="px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-a2-light/50 border-b border-a2-border mb-1">
+                      Display currency
+                    </div>
+                    {CURRENCIES.map((c) => (
+                      <button
+                        key={c}
+                        onClick={() => {
+                          setCurrency(c);
+                          setCurrencyOpen(false);
+                        }}
+                        className={`w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg text-sm transition-colors ${
+                          currency === c
+                            ? "bg-a2-gold/15 text-a2-gold"
+                            : "text-a2-light/80 hover:bg-white/5"
+                        }`}
+                      >
+                        <span className="font-medium">{c}</span>
+                        <span className="text-xs text-a2-light/50">
+                          {currencySymbols[c]}
+                        </span>
+                      </button>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
             <Link
               href="/marketplace"
               aria-label="Cart"
@@ -120,39 +230,75 @@ export default function Navbar() {
 
             <span className="mx-1.5 h-6 w-px bg-a2-border" />
 
-            <Link
-              href="/login"
-              className="flex items-center gap-1.5 px-4 py-2 rounded-lg border border-a2-border text-a2-light text-sm font-semibold hover:border-a2-gold/50 hover:text-a2-gold transition-colors"
-            >
-              <LogIn className="w-4 h-4" />
-              Login
-            </Link>
-            <Link
-              href="/signup"
-              className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-a2-gold text-black text-sm font-bold hover:bg-a2-gold-bright transition-colors a2-glow-soft"
-            >
-              <UserPlus className="w-4 h-4" />
-              Sign Up
-            </Link>
+            {user ? (
+              <>
+                <Link
+                  href="/dashboard"
+                  title="Wallet balance"
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-a2-gold/10 border border-a2-gold/30 text-a2-gold text-xs font-bold hover:bg-a2-gold/20 transition-colors"
+                >
+                  <Wallet className="w-3.5 h-3.5" />
+                  {format(walletBalance, walletFrom)}
+                </Link>
+                <Link
+                  href="/messages"
+                  className="p-2 rounded-lg text-a2-light/70 hover:text-a2-gold hover:bg-white/5 transition-colors"
+                  aria-label="Messages"
+                >
+                  <MessageCircle className="w-5 h-5" />
+                </Link>
+                <Link
+                  href="/dashboard"
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-a2-gold text-black text-sm font-bold hover:bg-a2-gold-bright transition-colors a2-glow-soft"
+                >
+                  <LayoutDashboard className="w-4 h-4" />
+                  Dashboard
+                </Link>
+                <button
+                  onClick={handleLogout}
+                  aria-label="Logout"
+                  className="p-2 rounded-lg text-a2-light/70 hover:text-a2-gold hover:bg-white/5 transition-colors"
+                >
+                  <LogOut className="w-5 h-5" />
+                </button>
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/login"
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-lg border border-a2-border text-a2-light text-sm font-semibold hover:border-a2-gold/50 hover:text-a2-gold transition-colors"
+                >
+                  <LogIn className="w-4 h-4" />
+                  Login
+                </Link>
+                <Link
+                  href="/signup"
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-a2-gold text-black text-sm font-bold hover:bg-a2-gold-bright transition-colors a2-glow-soft"
+                >
+                  <UserPlus className="w-4 h-4" />
+                  Sign Up
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Right: mobile icons */}
           <div className="lg:hidden flex items-center gap-1">
-            <button
-              aria-label="Search"
-              className="p-2 rounded-lg text-a2-light/80 hover:text-a2-gold transition-colors"
-            >
-              <Search className="w-5 h-5" />
-            </button>
+            {user && (
+              <Link
+                href="/dashboard"
+                title="Wallet balance"
+                className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-a2-gold/10 border border-a2-gold/30 text-a2-gold text-xs font-bold"
+              >
+                <Wallet className="w-3.5 h-3.5" />
+              </Link>
+            )}
             <Link
               href="/marketplace"
               aria-label="Cart"
-              className="relative p-2 rounded-lg text-a2-light/80 hover:text-a2-gold transition-colors"
+              className="p-2 rounded-lg text-a2-light/80 hover:text-a2-gold transition-colors"
             >
               <ShoppingCart className="w-5 h-5" />
-              <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-a2-gold text-black text-[10px] font-bold flex items-center justify-center">
-                2
-              </span>
             </Link>
           </div>
         </div>
@@ -187,23 +333,102 @@ export default function Navbar() {
                   </Link>
                 );
               })}
+
+              {/* Games */}
+              <div className="pt-3 mt-1 border-t border-a2-border">
+                <div className="flex items-center gap-2 px-4 pb-2 text-[11px] font-semibold uppercase tracking-wider text-a2-light/50">
+                  <Gamepad2 className="w-3.5 h-3.5" />
+                  Choose your game
+                </div>
+                <div className="grid grid-cols-2 gap-1">
+                  {games.map((game) => (
+                    <a
+                      key={game.id}
+                      href={`/boost?game=${game.id}`}
+                      onClick={() => setOpen(false)}
+                      className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl hover:bg-white/5 text-sm text-a2-light/80 transition-colors"
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={`/home/games/${game.id}.png`}
+                        alt=""
+                        className="h-6 w-6 object-contain shrink-0"
+                      />
+                      <span className="truncate">{game.name}</span>
+                    </a>
+                  ))}
+                </div>
+              </div>
+
+              {/* Currency */}
+              <div className="pt-3 mt-1 border-t border-a2-border">
+                <div className="flex items-center gap-2 px-4 pb-2 text-[11px] font-semibold uppercase tracking-wider text-a2-light/50">
+                  Display currency
+                </div>
+                <div className="flex flex-wrap gap-1.5 px-4">
+                  {CURRENCIES.map((c) => (
+                    <button
+                      key={c}
+                      onClick={() => setCurrency(c)}
+                      className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-colors ${
+                        currency === c
+                          ? "bg-a2-gold/20 border border-a2-gold/50 text-a2-gold"
+                          : "bg-white/5 border border-a2-border text-a2-light/70"
+                      }`}
+                    >
+                      {c}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               <div className="pt-3 mt-1 border-t border-a2-border flex gap-2">
-                <Link
-                  href="/login"
-                  onClick={() => setOpen(false)}
-                  className="flex-1 flex items-center justify-center gap-1.5 px-4 py-3 rounded-xl border border-a2-border text-a2-light text-sm font-semibold"
-                >
-                  <LogIn className="w-4 h-4" />
-                  Login
-                </Link>
-                <Link
-                  href="/signup"
-                  onClick={() => setOpen(false)}
-                  className="flex-1 flex items-center justify-center gap-1.5 px-4 py-3 rounded-xl bg-a2-gold text-black text-sm font-bold"
-                >
-                  <UserPlus className="w-4 h-4" />
-                  Sign Up
-                </Link>
+                {user ? (
+                  <>
+                    <Link
+                      href="/dashboard"
+                      onClick={() => setOpen(false)}
+                      className="flex-1 flex items-center justify-center gap-1.5 px-4 py-3 rounded-xl bg-a2-gold/10 border border-a2-gold/30 text-a2-gold text-sm font-bold"
+                    >
+                      <Wallet className="w-4 h-4" />
+                      {format(walletBalance, walletFrom)}
+                    </Link>
+                    <Link
+                      href="/messages"
+                      onClick={() => setOpen(false)}
+                      className="flex-1 flex items-center justify-center gap-1.5 px-4 py-3 rounded-xl bg-a2-card border border-a2-border text-a2-light text-sm font-semibold"
+                    >
+                      <MessageCircle className="w-4 h-4" />
+                      Messages
+                    </Link>
+                    <button
+                      onClick={handleLogout}
+                      className="p-3 rounded-xl bg-a2-card border border-a2-border text-a2-light/70"
+                      aria-label="Logout"
+                    >
+                      <LogOut className="w-4 h-4" />
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <Link
+                      href="/login"
+                      onClick={() => setOpen(false)}
+                      className="flex-1 flex items-center justify-center gap-1.5 px-4 py-3 rounded-xl border border-a2-border text-a2-light text-sm font-semibold"
+                    >
+                      <LogIn className="w-4 h-4" />
+                      Login
+                    </Link>
+                    <Link
+                      href="/signup"
+                      onClick={() => setOpen(false)}
+                      className="flex-1 flex items-center justify-center gap-1.5 px-4 py-3 rounded-xl bg-a2-gold text-black text-sm font-bold"
+                    >
+                      <UserPlus className="w-4 h-4" />
+                      Sign Up
+                    </Link>
+                  </>
+                )}
               </div>
             </nav>
           </motion.div>

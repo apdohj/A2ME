@@ -42,12 +42,12 @@ export default function GameCategories() {
                     : "border-a2-border bg-a2-card hover:border-a2-gold/40 hover:bg-a2-card/80"
                 }`}
               >
-                <span className="h-10 w-10 flex items-center justify-center">
+                <span className="h-10 w-10 flex items-center justify-center overflow-hidden">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={`/home/games/${g.id}.png`}
                     alt={g.name}
-                    className={`h-8 w-auto object-contain transition-opacity ${
+                    className={`h-9 w-9 object-contain transition-opacity ${
                       selected ? "opacity-100" : "opacity-70 group-hover:opacity-100"
                     }`}
                   />

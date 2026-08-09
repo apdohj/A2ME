@@ -1,12 +1,12 @@
-import Header from "@/components/Header";
+import Navbar from "@/components/home/Navbar";
 import Footer from "@/components/Footer";
 import CoachingContent from "@/components/CoachingContent";
 
 export default function CoachingPage() {
   return (
     <>
-      <Header />
-      <main className="pt-20 min-h-screen">
+      <Navbar />
+      <main className="min-h-screen">
         <CoachingContent />
       </main>
       <Footer />

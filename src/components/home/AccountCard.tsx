@@ -44,7 +44,7 @@ export default function AccountCard({
           <img
             src={account.gameLogo}
             alt=""
-            className="h-16 w-auto object-contain opacity-70"
+            className="h-16 w-16 object-contain"
           />
         </div>
       )}
@@ -78,7 +78,7 @@ export default function AccountCard({
               <img
                 src={account.gameLogo}
                 alt=""
-                className="h-5 w-auto object-contain"
+                className="h-5 w-5 object-contain shrink-0"
               />
               <span className="text-xs font-bold uppercase tracking-wider text-white truncate">
                 {account.gameName}
@@ -124,7 +124,7 @@ export default function AccountCard({
           <img
             src={account.gameLogo}
             alt=""
-            className="h-5 w-auto object-contain"
+            className="h-5 w-5 object-contain shrink-0"
           />
           <span className="text-xs font-bold uppercase tracking-wider text-white truncate">
             {account.gameName}

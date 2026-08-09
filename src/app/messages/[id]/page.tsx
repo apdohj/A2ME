@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Header from "@/components/Header";
+import Navbar from "@/components/home/Navbar";
 import Footer from "@/components/Footer";
 import AuthGuard from "@/components/AuthGuard";
 import Chat from "@/components/Chat";
@@ -14,8 +14,8 @@ export default async function ChatPage({
   const { id } = await params;
   return (
     <>
-      <Header />
-      <main className="pt-20 min-h-screen">
+      <Navbar />
+      <main className="min-h-screen">
         <AuthGuard>
           <Chat convId={id} />
         </AuthGuard>
