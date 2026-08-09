@@ -35,6 +35,7 @@ export interface Product {
   currency?: Currency;
   description: string;
   images: string[];
+  details?: Record<string, string>;
   status: "active" | "sold" | "hidden";
   sellerBanned: boolean;
   createdAt: number;

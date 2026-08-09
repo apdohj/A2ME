@@ -30,6 +30,15 @@ export function convertAmount(
   return Math.round(usd * exchangeRates[to] * 100) / 100;
 }
 
+export function totalUsd(
+  wallet: Partial<Record<Currency, number>> | undefined
+): number {
+  return CURRENCIES.reduce(
+    (sum, c) => sum + (wallet?.[c] ?? 0) / exchangeRates[c],
+    0
+  );
+}
+
 export function formatAmount(amount: number, currency: Currency): string {
   return `${currencySymbols[currency]}${amount.toFixed(2)}`;
 }

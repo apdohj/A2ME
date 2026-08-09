@@ -14,15 +14,19 @@ import {
   uploadImage,
   saveSettings,
   saveGameLogos,
+  saveCatalog,
+  deleteCatalog,
   adjustWallet,
 } from "@/lib/store";
 import { useAuth } from "@/lib/auth-context";
 import { useSettings } from "@/lib/settings-context";
+import { useCatalog } from "@/lib/catalog-context";
 import { games } from "@/lib/gameData";
 import { GameLogo } from "@/components/GameLogo";
+import { catalogs, otherCatalog, type FilterField } from "@/lib/filterCatalog";
 import type { AppUser, Product, Currency } from "@/lib/types";
 
-type Tab = "users" | "products" | "games" | "settings";
+type Tab = "users" | "products" | "games" | "catalog" | "settings";
 
 export default function AdminPanel() {
   const { user: me } = useAuth();
@@ -52,6 +56,7 @@ export default function AdminPanel() {
             { key: "users" as const, label: "👥 Users & Sellers" },
             { key: "products" as const, label: "🛒 Products" },
             { key: "games" as const, label: "🎮 Game Logos" },
+            { key: "catalog" as const, label: "📋 Filter Catalogs" },
             { key: "settings" as const, label: "⚙️ Site Settings" },
           ]
         ).map((t) => (
@@ -72,6 +77,7 @@ export default function AdminPanel() {
       {tab === "users" && <UsersTab me={me?.uid ?? ""} />}
       {tab === "products" && <ProductsTab />}
       {tab === "games" && <GamesTab gameLogos={settings.gameLogos} />}
+      {tab === "catalog" && <CatalogTab />}
       {tab === "settings" && (
         <SettingsTab
           key={settings.siteName + settings.colors.primary + settings.logoUrl}
@@ -466,6 +472,292 @@ function GamesTab({
             </div>
           );
         })}
+      </div>
+    </div>
+  );
+}
+
+/* ---------------- Filter Catalog Tab ---------------- */
+
+const CATALOG_GAMES = [
+  ...games.map((g) => ({ key: g.id, name: g.name })),
+  { key: "other", name: "Other (custom games)" },
+];
+
+const FIELD_TYPES: { value: FilterField["type"]; label: string }[] = [
+  { value: "select", label: "Select (dropdown)" },
+  { value: "multi", label: "Multi-select (chips)" },
+  { value: "number", label: "Number (min. threshold)" },
+  { value: "range", label: "Range (min/max)" },
+  { value: "toggle", label: "Toggle (yes/no)" },
+  { value: "text", label: "Text (free search)" },
+];
+
+function staticFieldsFor(gameKey: string): FilterField[] {
+  if (gameKey === "other") return otherCatalog;
+  return catalogs[gameKey] ?? otherCatalog;
+}
+
+function CatalogTab() {
+  const { persisted } = useCatalog();
+  const [gameKey, setGameKey] = useState("valorant");
+  const [fields, setFields] = useState<FilterField[]>([]);
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState("");
+
+  useEffect(() => {
+    const override = persisted[gameKey];
+    const source =
+      override && override.length > 0 ? override : staticFieldsFor(gameKey);
+    /* eslint-disable react-hooks/set-state-in-effect */
+    setFields(JSON.parse(JSON.stringify(source)));
+    setMsg("");
+    /* eslint-enable react-hooks/set-state-in-effect */
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gameKey]);
+
+  const updateField = (index: number, patch: Partial<FilterField>) => {
+    setFields((arr) =>
+      arr.map((f, i) => (i === index ? { ...f, ...patch } : f))
+    );
+  };
+
+  const addField = () => {
+    setFields((arr) => [
+      ...arr,
+      { id: `field_${arr.length + 1}`, label: "New Field", type: "select", options: [] },
+    ]);
+  };
+
+  const save = async () => {
+    if (fields.some((f) => !f.id.trim())) {
+      setMsg("❌ Every field needs an ID.");
+      return;
+    }
+    const ids = fields.map((f) => f.id.trim());
+    if (new Set(ids).size !== ids.length) {
+      setMsg("❌ Duplicate field IDs. Each field needs a unique ID.");
+      return;
+    }
+    if (fields.some((f) => !f.label.trim())) {
+      setMsg("❌ Every field needs a label.");
+      return;
+    }
+    setBusy(true);
+    try {
+      await saveCatalog(gameKey, fields);
+      setMsg("✅ Filter catalog saved. Sellers and buyers see it instantly.");
+    } catch (error) {
+      const code =
+        (error as { code?: string; message?: string })?.code ??
+        (error as { message?: string })?.message ??
+        "unknown";
+      setMsg(`❌ Save failed (${code}).`);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const reset = async () => {
+    if (
+      !window.confirm(
+        `Reset ${gameKey} to the default catalog? Custom fields will be removed.`
+      )
+    )
+      return;
+    setBusy(true);
+    try {
+      await deleteCatalog(gameKey);
+      setFields(JSON.parse(JSON.stringify(staticFieldsFor(gameKey))));
+      setMsg("✅ Reset to the default catalog.");
+    } catch (error) {
+      const code =
+        (error as { code?: string; message?: string })?.code ??
+        (error as { message?: string })?.message ??
+        "unknown";
+      setMsg(`❌ Reset failed (${code}).`);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const inputCls =
+    "w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-xs text-white outline-none focus:border-gold/60 transition-colors";
+
+  return (
+    <div>
+      <div className="glass-card p-5 mb-6 text-sm text-slate-300">
+        Edit the filter fields shown on the{" "}
+        <span className="text-gold">marketplace</span> and the{" "}
+        <span className="text-gold">listing form</span> for each game. Field IDs
+        must stay stable — existing listings keep matching as long as the ID
+        doesn&apos;t change.
+      </div>
+
+      <div className="glass-card p-6">
+        <div className="flex flex-wrap items-end gap-4 mb-6">
+          <div className="flex-1 min-w-[220px]">
+            <label className="text-xs text-slate-400 mb-1 block">Game</label>
+            <select
+              value={gameKey}
+              onChange={(e) => setGameKey(e.target.value)}
+              className={inputCls}
+            >
+              {CATALOG_GAMES.map((g) => (
+                <option key={g.key} value={g.key} className="bg-charcoal">
+                  {g.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={addField}
+              className="px-4 py-2 rounded-xl bg-white/10 border border-white/20 text-slate-200 text-xs font-semibold hover:bg-white/20 transition-colors"
+            >
+              + Add field
+            </button>
+            <button
+              onClick={reset}
+              disabled={busy}
+              className="px-4 py-2 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-semibold disabled:opacity-40 hover:bg-red-500/20 transition-colors"
+            >
+              Reset to default
+            </button>
+          </div>
+        </div>
+
+        <div className="space-y-3">
+          {fields.map((f, i) => (
+            <div
+              key={i}
+              className="border border-white/10 rounded-xl p-4 space-y-3 bg-white/[0.02]"
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-semibold text-gold">
+                  Field {i + 1}
+                </span>
+                <button
+                  onClick={() =>
+                    setFields((arr) => arr.filter((_, x) => x !== i))
+                  }
+                  className="text-[11px] text-red-400 hover:underline"
+                >
+                  ✕ Remove
+                </button>
+              </div>
+              <div className="grid sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="text-[11px] text-slate-400 mb-1 block">
+                    Label (shown to users)
+                  </label>
+                  <input
+                    value={f.label}
+                    onChange={(e) => updateField(i, { label: e.target.value })}
+                    className={inputCls}
+                    placeholder="e.g. Rank"
+                  />
+                </div>
+                <div>
+                  <label className="text-[11px] text-slate-400 mb-1 block">
+                    Field ID (technical, stable)
+                  </label>
+                  <input
+                    value={f.id}
+                    onChange={(e) => updateField(i, { id: e.target.value })}
+                    className={inputCls}
+                    placeholder="e.g. rank"
+                  />
+                </div>
+                <div>
+                  <label className="text-[11px] text-slate-400 mb-1 block">
+                    Type
+                  </label>
+                  <select
+                    value={f.type}
+                    onChange={(e) =>
+                      updateField(i, {
+                        type: e.target.value as FilterField["type"],
+                      })
+                    }
+                    className={inputCls}
+                  >
+                    {FIELD_TYPES.map((t) => (
+                      <option key={t.value} value={t.value} className="bg-charcoal">
+                        {t.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                {(f.type === "number" ||
+                  f.type === "range" ||
+                  f.type === "text") && (
+                  <div>
+                    <label className="text-[11px] text-slate-400 mb-1 block">
+                      Placeholder
+                    </label>
+                    <input
+                      value={f.placeholder ?? ""}
+                      onChange={(e) =>
+                        updateField(i, { placeholder: e.target.value })
+                      }
+                      className={inputCls}
+                      placeholder="e.g. 120"
+                    />
+                  </div>
+                )}
+              </div>
+              {(f.type === "select" ||
+                f.type === "multi" ||
+                f.type === "number") && (
+                <div>
+                  <label className="text-[11px] text-slate-400 mb-1 block">
+                    Options (comma separated) —{" "}
+                    {f.type === "number"
+                      ? "buyers filter as “X or more” thresholds"
+                      : "the choices users pick from"}
+                  </label>
+                  <input
+                    value={(f.options ?? []).join(", ")}
+                    onChange={(e) =>
+                      updateField(i, {
+                        options: e.target.value
+                          .split(",")
+                          .map((o) => o.trim())
+                          .filter(Boolean),
+                      })
+                    }
+                    className={inputCls}
+                    placeholder={
+                      f.type === "number"
+                        ? "0+, 10+, 25+, 50+, 100+"
+                        : "PC, PlayStation, Xbox"
+                    }
+                  />
+                </div>
+              )}
+            </div>
+          ))}
+          {fields.length === 0 && (
+            <div className="text-center py-8 text-slate-400 border border-dashed border-white/15 rounded-xl">
+              No fields yet. Add a field to get started.
+            </div>
+          )}
+        </div>
+
+        {msg && (
+          <div className="text-sm text-slate-300 bg-white/5 border border-white/10 rounded-xl px-4 py-3 mt-4">
+            {msg}
+          </div>
+        )}
+
+        <button
+          onClick={save}
+          disabled={busy}
+          className="mt-4 w-full py-3 rounded-xl bg-gradient-to-r from-neon-blue to-neon-purple text-black font-bold hover:opacity-90 transition-opacity disabled:opacity-50"
+        >
+          {busy ? "Saving..." : "Save Filter Catalog"}
+        </button>
       </div>
     </div>
   );

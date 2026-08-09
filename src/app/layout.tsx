@@ -5,6 +5,7 @@ import "./globals.css";
 import { AuthProvider } from "@/lib/auth-context";
 import { SettingsProvider } from "@/lib/settings-context";
 import { CurrencyProvider } from "@/lib/currency-context";
+import { CatalogProvider } from "@/lib/catalog-context";
 import FirebaseProvider from "@/components/FirebaseProvider";
 import { LanguageProvider } from "@/lib/language-context";
 import SplashScreen from "@/components/SplashScreen";
@@ -27,7 +28,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <AuthProvider>
           <SettingsProvider>
             <CurrencyProvider>
-              <LanguageProvider>{children}</LanguageProvider>
+              <CatalogProvider>
+                <LanguageProvider>{children}</LanguageProvider>
+              </CatalogProvider>
             </CurrencyProvider>
             <SplashScreen />
           </SettingsProvider>

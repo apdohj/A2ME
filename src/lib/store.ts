@@ -14,6 +14,8 @@ import {
 } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { firestore, storage } from "./firebase";
+import { CURRENCIES, exchangeRates, totalUsd } from "./currency";
+import type { FilterField } from "./filterCatalog";
 import type {
   AppUser,
   Product,
@@ -77,13 +79,40 @@ export async function adjustWallet(
 
 export async function debitSellerActivation(uid: string): Promise<void> {
   const profile = await getUser(uid);
-  const balance = profile?.wallet?.USD ?? 0;
-  if (balance < 1) throw new Error("wallet-insufficient-funds");
+  const wallet = { ...(profile?.wallet ?? {}) } as Partial<Record<Currency, number>>;
+
+  if (totalUsd(wallet) + 1e-9 < 1) throw new Error("wallet-insufficient-funds");
+
+  // Deduct $1 worth, starting from the user's preferred currency,
+  // then spreading across whichever currencies hold a balance.
+  const preferred = profile?.walletCurrency ?? "USD";
+  const order = [...CURRENCIES].sort((a, b) => {
+    if (a === preferred) return -1;
+    if (b === preferred) return 1;
+    return (
+      (wallet[b] ?? 0) / exchangeRates[b] -
+      (wallet[a] ?? 0) / exchangeRates[a]
+    );
+  });
+
+  let remainingUsd = 1;
+  const next: Partial<Record<Currency, number>> = { ...wallet };
+  for (const c of order) {
+    if (remainingUsd <= 1e-9) break;
+    const bal = next[c] ?? 0;
+    if (bal <= 0) continue;
+    const balUsd = bal / exchangeRates[c];
+    const takeUsd = Math.min(remainingUsd, balUsd);
+    const takeLocal = Math.round(takeUsd * exchangeRates[c] * 100) / 100;
+    next[c] = Math.round((bal - takeLocal) * 100) / 100;
+    remainingUsd -= takeUsd;
+  }
+
   await setUserProfile(uid, {
     isSeller: true,
     sellerPaymentStatus: "paid",
-    wallet: { ...(profile?.wallet ?? {}), USD: Math.round((balance - 1) * 100) / 100 },
-    walletCurrency: "USD",
+    wallet: next,
+    walletCurrency: preferred,
   });
 }
 
@@ -309,4 +338,34 @@ export async function saveGameLogos(
   gameLogos: Record<string, string>
 ): Promise<void> {
   await saveSettings({ gameLogos });
+}
+
+/* ---------------- Filter Catalogs ---------------- */
+
+export function subscribeCatalog(
+  cb: (catalog: Record<string, FilterField[]>) => void
+): () => void {
+  return onSnapshot(
+    collection(firestore, "catalog"),
+    (snap) => {
+      const map: Record<string, FilterField[]> = {};
+      snap.docs.forEach((d) => {
+        const data = d.data() as { fields?: FilterField[] };
+        if (Array.isArray(data.fields)) map[d.id] = data.fields;
+      });
+      cb(map);
+    },
+    () => cb({})
+  );
+}
+
+export async function saveCatalog(
+  gameId: string,
+  fields: FilterField[]
+): Promise<void> {
+  await setDoc(doc(firestore, "catalog", gameId), { fields });
+}
+
+export async function deleteCatalog(gameId: string): Promise<void> {
+  await deleteDoc(doc(firestore, "catalog", gameId));
 }

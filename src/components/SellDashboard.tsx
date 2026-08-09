@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { useCurrency } from "@/lib/currency-context";
+import { totalUsd } from "@/lib/currency";
 import {
   subscribeProducts,
   createProduct,
@@ -10,7 +11,9 @@ import {
   setProductStatus,
   uploadImage,
 } from "@/lib/store";
-import { games, getAllDivisions } from "@/lib/gameData";
+import { games } from "@/lib/gameData";
+import { useCatalog } from "@/lib/catalog-context";
+import CatalogFieldsInput from "@/components/CatalogFieldsInput";
 import type { AppUser, Product, Currency } from "@/lib/types";
 
 export default function SellDashboard() {
@@ -57,6 +60,9 @@ function SellActivation({
   const [paymentReference, setPaymentReference] = useState("");
   const [paymentSent, setPaymentSent] = useState(false);
 
+  const balanceUsd = totalUsd(profile.wallet);
+  const canPay = balanceUsd >= 1;
+
   return (
     <div className="max-w-2xl mx-auto px-4 py-24 text-center">
       <div className="glass-card p-12 neon-glow">
@@ -69,6 +75,12 @@ function SellActivation({
           <span className="text-gold font-semibold">{format(1)}</span>, then
           list accounts and chat with buyers directly.
         </p>
+        <p className="text-sm text-slate-300 mb-4">
+          Your wallet balance:{" "}
+          <span className={`font-bold ${canPay ? "text-gold" : "text-red-400"}`}>
+            {format(balanceUsd)}
+          </span>
+        </p>
         {profile.sellerPaymentStatus === "pending" || paymentSent ? (
           <div className="rounded-xl border border-gold/30 bg-gold/5 p-4 text-sm text-gold">
             Payment submitted. An admin will verify it before seller access is enabled.
@@ -77,15 +89,19 @@ function SellActivation({
           <div className="flex flex-col sm:flex-row justify-center gap-3">
             <button
               onClick={async () => {
+                if (!canPay) {
+                  setPaymentOpen(true);
+                  return;
+                }
                 try {
                   await activateSellerFromWallet();
                 } catch {
                   setPaymentOpen(true);
                 }
               }}
-              className="px-6 py-3 rounded-xl bg-gradient-to-r from-neon-blue to-neon-purple text-black font-bold hover:opacity-90 transition-opacity"
+              className="px-6 py-3 rounded-xl bg-gradient-to-r from-neon-blue to-neon-purple text-black font-bold hover:opacity-90 transition-opacity disabled:opacity-50"
             >
-              Pay {format(1)} from wallet ({format(profile.wallet?.USD ?? 0)} USD)
+              Pay {format(1)} from wallet
             </button>
             <button
               onClick={() => setPaymentOpen(true)}
@@ -94,6 +110,12 @@ function SellActivation({
               External payment
             </button>
           </div>
+        )}
+        {!canPay && (
+          <p className="text-xs text-slate-500 mt-4">
+            Your wallet balance is below the activation fee. Use external
+            payment, or ask an admin to add balance to your wallet.
+          </p>
         )}
       </div>
       {paymentOpen && (
@@ -157,13 +179,14 @@ function SellDashboardInner({
   updateNickname: (nickname: string) => Promise<void>;
 }) {
   const { currency: chosenCurrency, format } = useCurrency();
+  const { getCatalogFields } = useCatalog();
   const [myProducts, setMyProducts] = useState<Product[]>([]);
   const [nickname, setNickname] = useState(profile.nickname);
   const [savingNickname, setSavingNickname] = useState(false);
 
   const [title, setTitle] = useState("");
   const [game, setGame] = useState("Valorant");
-  const [rank, setRank] = useState("");
+  const [details, setDetails] = useState<Record<string, string>>({});
   const [region, setRegion] = useState("EU");
   const [price, setPrice] = useState("50");
   const [currency, setCurrency] = useState<Currency>(chosenCurrency);
@@ -172,7 +195,7 @@ function SellDashboardInner({
   const [uploading, setUploading] = useState(false);
   const [formError, setFormError] = useState("");
   const [formOk, setFormOk] = useState("");
-  const selectedGame = games.find((item) => item.name === game) ?? games[0];
+  const selectedFields = getCatalogFields(game);
 
   useEffect(() => {
     const unsub = subscribeProducts((all) => {
@@ -192,8 +215,13 @@ function SellDashboardInner({
     setFormError("");
     setFormOk("");
     const priceNum = parseFloat(price);
-    if (!title.trim() || !rank.trim() || isNaN(priceNum) || priceNum <= 0) {
-      setFormError("Please fill in the title, rank and a valid price.");
+    if (!title.trim() || isNaN(priceNum) || priceNum <= 0) {
+      setFormError("Please fill in the title and a valid price.");
+      return;
+    }
+    const rankValue = (details.rank ?? "").trim();
+    if (selectedFields.some((f) => f.id === "rank") && !rankValue) {
+      setFormError("Please select a rank for this account.");
       return;
     }
     setUploading(true);
@@ -207,15 +235,16 @@ function SellDashboardInner({
         sellerName: nickname.trim() || profile.nickname,
         title: title.trim(),
         game,
-        rank: rank.trim(),
+        rank: rankValue || "N/A",
         region,
         price: Math.round(priceNum * 100) / 100,
-      currency,
+        currency,
         description: description.trim(),
         images: urls,
+        details,
       });
       setTitle("");
-      setRank("");
+      setDetails({});
       setPrice("50");
       setDescription("");
       setImageFiles([]);
@@ -286,7 +315,7 @@ function SellDashboardInner({
                 value={game}
                 onChange={(e) => {
                   setGame(e.target.value);
-                  setRank("");
+                  setDetails({});
                 }}
                 className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-white outline-none focus:border-gold/60 transition-colors"
               >
@@ -295,6 +324,7 @@ function SellDashboardInner({
                     {g.name}
                   </option>
                 ))}
+                <option value="Other" className="bg-charcoal">Other</option>
               </select>
             </div>
             <div>
@@ -303,22 +333,23 @@ function SellDashboardInner({
                 {(["EGP", "USD", "EUR", "KWD", "SAR"] as const).map((item) => <option key={item} className="bg-charcoal">{item}</option>)}
               </select>
             </div>
-            <div>
-              <label className="text-sm text-slate-400 mb-1 block">Rank</label>
-              <select
-                required
-                value={rank}
-                onChange={(e) => setRank(e.target.value)}
-                className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-white outline-none focus:border-gold/60 transition-colors"
-              >
-                <option value="" className="bg-charcoal">Select rank</option>
-                {getAllDivisions(selectedGame).map((r) => (
-                  <option key={r} value={r} className="bg-charcoal">
-                    {r}
-                  </option>
-                ))}
-              </select>
-            </div>
+          </div>
+
+          <div className="border-t border-white/10 pt-5">
+            <label className="text-sm text-slate-400 mb-3 block">
+              Account Details{" "}
+              <span className="text-slate-500">
+                (these power the marketplace filters)
+              </span>
+            </label>
+            <CatalogFieldsInput
+              fields={selectedFields}
+              values={details}
+              onChange={(id, v) => setDetails((d) => ({ ...d, [id]: v }))}
+            />
+          </div>
+
+          <div className="grid sm:grid-cols-2 gap-4">
             <div>
               <label className="text-sm text-slate-400 mb-1 block">Region</label>
               <select
