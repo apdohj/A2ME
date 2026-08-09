@@ -46,10 +46,10 @@ function LoginFormInner() {
     <div className="min-h-screen flex items-center justify-center px-4 pt-16">
       <div className="w-full max-w-md glass-card p-8 neon-glow">
         <div className="text-center mb-8">
-          <div className="w-12 h-12 mx-auto rounded-xl bg-gradient-to-br from-neon-blue to-neon-purple flex items-center justify-center font-black text-black text-xl mb-4">
-            A
-          </div>
-          <h1 className="text-2xl font-bold text-white">Welcome back</h1>
+          <h1 className="font-logo text-3xl font-bold tracking-[0.2em] text-a2-gold mb-1">
+            A2ME
+          </h1>
+          <h2 className="text-2xl font-bold text-white">Welcome back</h2>
           <p className="text-sm text-slate-400 mt-2">
             Sign in to access your dashboard and messages.
           </p>

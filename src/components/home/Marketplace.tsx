@@ -26,50 +26,6 @@ const GAME_NAMES = [
   "OTHER",
 ];
 
-const SHOWCASE: HomeAccount[] = [
-  {
-    id: "s-valorant",
-    gameName: "VALORANT",
-    gameLogo: "/home/games/valorant.png",
-    rank: "Immortal 2",
-    info: "Level 184 • 73 Skins • 6 Knives",
-    meta: "EU • PC",
-    priceLabel: "$129.99",
-    priceNum: 129.99,
-  },
-  {
-    id: "s-cs2",
-    gameName: "CS2",
-    gameLogo: "/home/games/cs2.png",
-    rank: "Global Elite",
-    info: "18,420 Rating • Knife • Gloves • 150+ Skins",
-    meta: "EU • PC",
-    priceLabel: "$249.99",
-    priceNum: 249.99,
-  },
-  {
-    id: "s-fortnite",
-    gameName: "FORTNITE",
-    gameLogo: "/home/games/fortnite.png",
-    rank: "Unreal",
-    info: "250+ Skins • OG Items",
-    meta: "NA • PC",
-    priceLabel: "$199.99",
-    priceNum: 199.99,
-  },
-  {
-    id: "s-apex",
-    gameName: "APEX LEGENDS",
-    gameLogo: "/home/games/apex.png",
-    rank: "Master",
-    info: "4 Heirlooms • 120 Skins",
-    meta: "EU • PC",
-    priceLabel: "$179.99",
-    priceNum: 179.99,
-    image: "/home/apex-product.png",
-  },
-];
-
 function toHomeAccount(
   p: Product,
   format: (n: number, c?: Currency) => string,
@@ -113,10 +69,9 @@ export default function Marketplace() {
   }, []);
 
   const accounts = useMemo(() => {
-    const all = products
+    return products
       .filter((p) => p.status === "active" && !p.sellerBanned)
       .map((p) => toHomeAccount(p, format, settings.gameLogos));
-    return all.length > 0 ? all : SHOWCASE;
   }, [products, format, settings.gameLogos]);
 
   const filtered = useMemo(() => {
@@ -283,8 +238,17 @@ export default function Marketplace() {
             </div>
 
             {visible.length === 0 ? (
-              <div className="a2-card p-10 text-center text-a2-light/60">
-                No accounts match your filters. Try adjusting the search.
+              <div className="a2-card p-10 text-center">
+                <p className="text-a2-light/70 font-medium mb-1">
+                  {accounts.length === 0
+                    ? "No accounts listed yet"
+                    : "No accounts match your filters"}
+                </p>
+                <p className="text-sm text-a2-light/50">
+                  {accounts.length === 0
+                    ? "When a seller lists an account, it will appear here automatically."
+                    : "Try adjusting the search."}
+                </p>
               </div>
             ) : (
               <div

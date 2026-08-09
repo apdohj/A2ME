@@ -148,6 +148,13 @@ export default function Footer() {
             ●
           </a>
         </div>
+
+        <p
+          dir="rtl"
+          className="text-center text-xs text-slate-500 pt-3"
+        >
+          تم صناعة الموقع على يد شباب مصريين — تحيا مصر وأرض الشرق الأوسط
+        </p>
       </div>
     </footer>
   );

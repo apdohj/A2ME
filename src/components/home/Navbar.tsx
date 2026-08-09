@@ -74,28 +74,28 @@ export default function Navbar() {
   return (
     <header className="sticky top-0 z-50 bg-a2-bg/85 backdrop-blur-xl border-b border-a2-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 lg:h-[72px] gap-3">
+        <div className="flex items-center justify-between h-14 lg:h-16 gap-2">
           {/* Left: hamburger + logo */}
-          <div className="flex items-center gap-2 min-w-0 shrink-0">
+          <div className="flex items-center gap-1.5 min-w-0 shrink-0">
             <button
               onClick={() => setOpen(!open)}
               aria-label="Menu"
-              className="p-2 -ml-1 rounded-lg text-a2-light/80 hover:text-a2-gold hover:bg-white/5 transition-colors"
+              className="p-1.5 -ml-1 rounded-lg text-a2-light/80 hover:text-a2-gold hover:bg-white/5 transition-colors"
             >
-              {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              {open ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
             </button>
             <Link href="/" className="flex items-center group shrink-0">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/home/header-logo.png"
                 alt="A2ME — Middle East Gaming Accounts"
-                className="h-10 lg:h-12 w-auto object-contain drop-shadow-[0_0_14px_rgba(255,201,40,0.25)] group-hover:drop-shadow-[0_0_18px_rgba(255,201,40,0.4)] transition-[filter]"
+                className="h-8 lg:h-9 w-auto object-contain drop-shadow-[0_0_14px_rgba(255,201,40,0.25)] group-hover:drop-shadow-[0_0_18px_rgba(255,201,40,0.4)] transition-[filter]"
               />
             </Link>
           </div>
 
           {/* Center nav — desktop */}
-          <nav className="hidden xl:flex items-center gap-1">
+          <nav className="hidden xl:flex items-center gap-0.5">
             {NAV.map((item) => {
               const Icon = item.icon;
               const active = isActive(item.href);
@@ -103,16 +103,16 @@ export default function Navbar() {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`relative flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
+                  className={`relative flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[13px] font-medium whitespace-nowrap transition-colors ${
                     active
                       ? "text-a2-gold"
                       : "text-a2-light/70 hover:text-white"
                   }`}
                 >
-                  <Icon className="w-4 h-4" />
+                  <Icon className="w-3.5 h-3.5" />
                   {item.label}
                   {active && (
-                    <span className="absolute -bottom-[1px] left-3 right-3 h-0.5 rounded-full bg-a2-gold a2-glow-soft" />
+                    <span className="absolute -bottom-[1px] left-2.5 right-2.5 h-0.5 rounded-full bg-a2-gold a2-glow-soft" />
                   )}
                 </Link>
               );
@@ -120,14 +120,14 @@ export default function Navbar() {
           </nav>
 
           {/* Right: desktop */}
-          <div className="hidden lg:flex items-center gap-1.5 shrink-0">
+          <div className="hidden lg:flex items-center gap-1 shrink-0">
             {/* Language toggle */}
             <button
               onClick={toggleLanguage}
               aria-label="Toggle language"
-              className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-a2-border text-a2-light/80 hover:border-a2-gold/40 hover:text-a2-gold transition-colors text-sm font-semibold"
+              className="flex items-center gap-1.5 px-2.5 py-2 rounded-lg border border-a2-border text-a2-light/80 hover:border-a2-gold/40 hover:text-a2-gold transition-colors text-[13px] font-semibold"
             >
-              <Languages className="w-4 h-4" />
+              <Languages className="w-3.5 h-3.5" />
               {language === "en" ? "عربي" : "EN"}
             </button>
 
@@ -136,12 +136,12 @@ export default function Navbar() {
               <button
                 onClick={() => setCurrencyOpen(!currencyOpen)}
                 aria-label="Currency"
-                className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-a2-border text-a2-light/80 hover:border-a2-gold/40 hover:text-a2-gold transition-colors text-sm font-semibold"
+                className="flex items-center gap-1.5 px-2.5 py-2 rounded-lg border border-a2-border text-a2-light/80 hover:border-a2-gold/40 hover:text-a2-gold transition-colors text-[13px] font-semibold"
               >
                 <span className="text-a2-gold">{currencySymbols[currency]}</span>
                 {currency}
                 <ChevronDown
-                  className={`w-3.5 h-3.5 text-a2-light/50 transition-transform ${
+                  className={`w-3 h-3 text-a2-light/50 transition-transform ${
                     currencyOpen ? "rotate-180" : ""
                   }`}
                 />
@@ -183,29 +183,29 @@ export default function Navbar() {
 
             <button
               aria-label="Search"
-              className="p-2 rounded-lg text-a2-light/70 hover:text-a2-gold hover:bg-white/5 transition-colors"
+              className="p-1.5 rounded-lg text-a2-light/70 hover:text-a2-gold hover:bg-white/5 transition-colors"
             >
-              <Search className="w-5 h-5" />
+              <Search className="w-4 h-4" />
             </button>
             <Link
               href="/marketplace"
               aria-label="Cart"
-              className="relative p-2 rounded-lg text-a2-light/70 hover:text-a2-gold hover:bg-white/5 transition-colors"
+              className="relative p-1.5 rounded-lg text-a2-light/70 hover:text-a2-gold hover:bg-white/5 transition-colors"
             >
-              <ShoppingCart className="w-5 h-5" />
-              <span className="absolute top-0.5 right-0.5 w-4 h-4 rounded-full bg-a2-gold text-black text-[10px] font-bold flex items-center justify-center">
+              <ShoppingCart className="w-4 h-4" />
+              <span className="absolute top-0 right-0 w-3.5 h-3.5 rounded-full bg-a2-gold text-black text-[9px] font-bold flex items-center justify-center">
                 2
               </span>
             </Link>
 
-            <span className="mx-1.5 h-6 w-px bg-a2-border" />
+            <span className="mx-1 h-5 w-px bg-a2-border" />
 
             {user ? (
               <>
                 <Link
                   href="/dashboard"
                   title="Wallet balance"
-                  className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-a2-gold/10 border border-a2-gold/30 text-a2-gold text-xs font-bold hover:bg-a2-gold/20 transition-colors"
+                  className="flex items-center gap-1.5 px-2.5 py-2 rounded-lg bg-a2-gold/10 border border-a2-gold/30 text-a2-gold text-xs font-bold hover:bg-a2-gold/20 transition-colors whitespace-nowrap"
                 >
                   <Wallet className="w-3.5 h-3.5" />
                   {format(walletBalance, walletFrom)}
@@ -213,39 +213,39 @@ export default function Navbar() {
                 <Link
                   href="/messages"
                   aria-label="Messages"
-                  className="p-2 rounded-lg text-a2-light/70 hover:text-a2-gold hover:bg-white/5 transition-colors"
+                  className="p-1.5 rounded-lg text-a2-light/70 hover:text-a2-gold hover:bg-white/5 transition-colors"
                 >
-                  <MessageCircle className="w-5 h-5" />
+                  <MessageCircle className="w-4 h-4" />
                 </Link>
                 <Link
                   href="/dashboard"
-                  className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-a2-gold text-black text-sm font-bold hover:bg-a2-gold-bright transition-colors a2-glow-soft"
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-a2-gold text-black text-[13px] font-bold hover:bg-a2-gold-bright transition-colors a2-glow-soft whitespace-nowrap"
                 >
-                  <LayoutDashboard className="w-4 h-4" />
+                  <LayoutDashboard className="w-3.5 h-3.5" />
                   Dashboard
                 </Link>
                 <button
                   onClick={handleLogout}
                   aria-label="Logout"
-                  className="p-2 rounded-lg text-a2-light/70 hover:text-a2-gold hover:bg-white/5 transition-colors"
+                  className="p-1.5 rounded-lg text-a2-light/70 hover:text-a2-gold hover:bg-white/5 transition-colors"
                 >
-                  <LogOut className="w-5 h-5" />
+                  <LogOut className="w-4 h-4" />
                 </button>
               </>
             ) : (
               <>
                 <Link
                   href="/login"
-                  className="flex items-center gap-1.5 px-4 py-2 rounded-lg border border-a2-border text-a2-light text-sm font-semibold hover:border-a2-gold/50 hover:text-a2-gold transition-colors whitespace-nowrap"
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-a2-border text-a2-light text-[13px] font-semibold hover:border-a2-gold/50 hover:text-a2-gold transition-colors whitespace-nowrap"
                 >
-                  <LogIn className="w-4 h-4" />
+                  <LogIn className="w-3.5 h-3.5" />
                   Login
                 </Link>
                 <Link
                   href="/signup"
-                  className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-a2-gold text-black text-sm font-bold hover:bg-a2-gold-bright transition-colors a2-glow-soft whitespace-nowrap"
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-a2-gold text-black text-[13px] font-bold hover:bg-a2-gold-bright transition-colors a2-glow-soft whitespace-nowrap"
                 >
-                  <UserPlus className="w-4 h-4" />
+                  <UserPlus className="w-3.5 h-3.5" />
                   Sign Up
                 </Link>
               </>
@@ -253,20 +253,20 @@ export default function Navbar() {
           </div>
 
           {/* Right: mobile icons */}
-          <div className="lg:hidden flex items-center gap-1 shrink-0">
+          <div className="lg:hidden flex items-center gap-0.5 shrink-0">
             <button
               aria-label="Search"
-              className="p-2 rounded-lg text-a2-light/80 hover:text-a2-gold transition-colors"
+              className="p-1.5 rounded-lg text-a2-light/80 hover:text-a2-gold transition-colors"
             >
-              <Search className="w-5 h-5" />
+              <Search className="w-4 h-4" />
             </button>
             <Link
               href="/marketplace"
               aria-label="Cart"
-              className="relative p-2 rounded-lg text-a2-light/80 hover:text-a2-gold transition-colors"
+              className="relative p-1.5 rounded-lg text-a2-light/80 hover:text-a2-gold transition-colors"
             >
-              <ShoppingCart className="w-5 h-5" />
-              <span className="absolute top-0.5 right-0.5 w-4 h-4 rounded-full bg-a2-gold text-black text-[10px] font-bold flex items-center justify-center">
+              <ShoppingCart className="w-4 h-4" />
+              <span className="absolute top-0 right-0 w-3.5 h-3.5 rounded-full bg-a2-gold text-black text-[9px] font-bold flex items-center justify-center">
                 2
               </span>
             </Link>
@@ -281,7 +281,7 @@ export default function Navbar() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="border-b border-a2-border bg-a2-bg2/95 backdrop-blur-xl max-h-[calc(100dvh-4rem)] overflow-y-auto shadow-2xl shadow-black/50"
+            className="border-b border-a2-border bg-a2-bg2/95 backdrop-blur-xl max-h-[calc(100dvh-3.5rem)] overflow-y-auto shadow-2xl shadow-black/50"
           >
             <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 space-y-1">
               {[...NAV, ...MORE_NAV].map((item) => {
