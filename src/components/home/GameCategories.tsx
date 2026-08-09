@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useSettings } from "@/lib/settings-context";
 
 const GAMES = [
   { id: "valorant", name: "VALORANT" },
@@ -21,7 +22,11 @@ const GAMES = [
 
 export default function GameCategories() {
   const router = useRouter();
+  const { settings } = useSettings();
   const [active, setActive] = useState("valorant");
+
+  const logoFor = (id: string) =>
+    settings.gameLogos?.[id] || `/home/games/${id}.png`;
 
   return (
     <section className="bg-a2-bg py-6 sm:py-8">
@@ -45,7 +50,7 @@ export default function GameCategories() {
                 <span className="h-10 w-10 flex items-center justify-center overflow-hidden">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src={`/home/games/${g.id}.png`}
+                    src={logoFor(g.id)}
                     alt={g.name}
                     className={`h-9 w-9 object-contain transition-opacity ${
                       selected

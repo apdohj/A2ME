@@ -24,11 +24,14 @@ import {
   LogOut,
   LayoutDashboard,
   Gamepad2,
+  Languages,
 } from "lucide-react";
 import { games } from "@/lib/gameData";
 import { useAuth } from "@/lib/auth-context";
 import { useCurrency } from "@/lib/currency-context";
 import { CURRENCIES } from "@/lib/currency";
+import { useSettings } from "@/lib/settings-context";
+import { useLanguage } from "@/lib/language-context";
 import { currencySymbols, type Currency } from "@/lib/types";
 
 const NAV = [
@@ -51,8 +54,13 @@ export default function Navbar() {
   const router = useRouter();
   const { user, profile, logout } = useAuth();
   const { currency, setCurrency, format } = useCurrency();
+  const { settings } = useSettings();
+  const { language, toggleLanguage } = useLanguage();
   const walletFrom = (profile?.walletCurrency ?? "USD") as Currency;
   const walletBalance = profile?.wallet?.[walletFrom] ?? 0;
+
+  const gameLogo = (id: string) =>
+    settings.gameLogos?.[id] || `/home/games/${id}.png`;
 
   const isActive = (href: string) =>
     href === "/" ? pathname === "/" : pathname.startsWith(href.replace(/\/$/, ""));
@@ -113,6 +121,16 @@ export default function Navbar() {
 
           {/* Right: desktop */}
           <div className="hidden lg:flex items-center gap-1.5 shrink-0">
+            {/* Language toggle */}
+            <button
+              onClick={toggleLanguage}
+              aria-label="Toggle language"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-a2-border text-a2-light/80 hover:border-a2-gold/40 hover:text-a2-gold transition-colors text-sm font-semibold"
+            >
+              <Languages className="w-4 h-4" />
+              {language === "en" ? "عربي" : "EN"}
+            </button>
+
             {/* Currency selector */}
             <div className="relative">
               <button
@@ -300,15 +318,45 @@ export default function Navbar() {
                       onClick={() => setOpen(false)}
                       className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl hover:bg-white/5 text-sm text-a2-light/80 transition-colors"
                     >
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={`/home/games/${game.id}.png`}
-                        alt=""
-                        className="h-6 w-6 object-contain shrink-0"
-                      />
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={gameLogo(game.id)}
+                            alt={game.name}
+                            className="h-6 w-6 object-contain"
+                          />
                       <span className="truncate">{game.name}</span>
                     </a>
                   ))}
+                </div>
+              </div>
+
+              {/* Language */}
+              <div className="pt-3 mt-1 border-t border-a2-border">
+                <div className="flex items-center gap-2 px-4 pb-2 text-[11px] font-semibold uppercase tracking-wider text-a2-light/50">
+                  <Languages className="w-3.5 h-3.5" />
+                  Language
+                </div>
+                <div className="flex gap-1.5 px-4">
+                  <button
+                    onClick={() => language !== "en" && toggleLanguage()}
+                    className={`flex-1 px-2.5 py-1 rounded-lg text-xs font-semibold transition-colors ${
+                      language === "en"
+                        ? "bg-a2-gold/20 border border-a2-gold/50 text-a2-gold"
+                        : "bg-white/5 border border-a2-border text-a2-light/70"
+                    }`}
+                  >
+                    English
+                  </button>
+                  <button
+                    onClick={() => language !== "ar" && toggleLanguage()}
+                    className={`flex-1 px-2.5 py-1 rounded-lg text-xs font-semibold transition-colors ${
+                      language === "ar"
+                        ? "bg-a2-gold/20 border border-a2-gold/50 text-a2-gold"
+                        : "bg-white/5 border border-a2-border text-a2-light/70"
+                    }`}
+                  >
+                    العربية
+                  </button>
                 </div>
               </div>
 

@@ -6,6 +6,7 @@ import { Star, SlidersHorizontal, X, LayoutGrid, List, ChevronDown } from "lucid
 import { subscribeProducts, getOrCreateConversation } from "@/lib/store";
 import { useAuth } from "@/lib/auth-context";
 import { useCurrency } from "@/lib/currency-context";
+import { useSettings } from "@/lib/settings-context";
 import { gameIdForName } from "@/lib/filterCatalog";
 import type { Currency, Product } from "@/lib/types";import AccountCard, { type HomeAccount } from "./AccountCard";
 
@@ -69,7 +70,11 @@ const SHOWCASE: HomeAccount[] = [
   },
 ];
 
-function toHomeAccount(p: Product, format: (n: number, c?: Currency) => string): HomeAccount {
+function toHomeAccount(
+  p: Product,
+  format: (n: number, c?: Currency) => string,
+  gameLogos: Record<string, string> | undefined
+): HomeAccount {
   const gid = gameIdForName(p.game) ?? "other";
   const detailValues = Object.entries(p.details ?? {})
     .filter(([, v]) => v && v !== "No" && v !== "N/A")
@@ -78,7 +83,7 @@ function toHomeAccount(p: Product, format: (n: number, c?: Currency) => string):
   return {
     id: p.id,
     gameName: p.game.toUpperCase(),
-    gameLogo: `/home/games/${gid}.png`,
+    gameLogo: gameLogos?.[gid] || `/home/games/${gid}.png`,
     rank: p.rank && p.rank !== "N/A" ? p.rank : "Premium",
     info: detailValues.length ? detailValues.join(" • ") : p.title,
     meta: `${p.region} • PC`,
@@ -94,6 +99,7 @@ export default function Marketplace() {
   const router = useRouter();
   const { user, profile } = useAuth();
   const { format } = useCurrency();
+  const { settings } = useSettings();
   const [products, setProducts] = useState<Product[]>([]);
   const [gameFilter, setGameFilter] = useState("All");
   const [maxPrice, setMaxPrice] = useState(1000);
@@ -109,9 +115,9 @@ export default function Marketplace() {
   const accounts = useMemo(() => {
     const all = products
       .filter((p) => p.status === "active" && !p.sellerBanned)
-      .map((p) => toHomeAccount(p, format));
+      .map((p) => toHomeAccount(p, format, settings.gameLogos));
     return all.length > 0 ? all : SHOWCASE;
-  }, [products, format]);
+  }, [products, format, settings.gameLogos]);
 
   const filtered = useMemo(() => {
     const list = accounts.filter((a) => {
