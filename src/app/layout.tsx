@@ -10,6 +10,7 @@ import FirebaseProvider from "@/components/FirebaseProvider";
 import { LanguageProvider } from "@/lib/language-context";
 import SplashScreen from "@/components/SplashScreen";
 import FloatingSupportButton from "@/components/FloatingSupportButton";
+import { DevicePreviewProvider } from "@/lib/device-preview-context";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -30,7 +31,13 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           <SettingsProvider>
             <CurrencyProvider>
               <CatalogProvider>
-                <LanguageProvider>{children}</LanguageProvider>
+                <LanguageProvider>
+                <DevicePreviewProvider>
+                  {children}
+                  <SplashScreen />
+                  <FloatingSupportButton />
+                </DevicePreviewProvider>
+              </LanguageProvider>
               </CatalogProvider>
             </CurrencyProvider>
             <SplashScreen />

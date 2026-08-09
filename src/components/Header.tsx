@@ -40,18 +40,18 @@ export default function Header() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
-            <Link href="/" className="flex items-center gap-2.5 group shrink-0">
+            <Link href="/" className="flex items-center gap-2 group shrink-0 min-w-0">
               {settings.logoUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={settings.logoUrl}
                   alt={settings.siteName}
-                  className="w-36 h-12 rounded-xl object-contain bg-white/10 border border-gold/25 animate-logo-glow group-hover:scale-105 transition-transform"
+                  className="w-16 h-8 sm:w-36 sm:h-12 rounded-lg sm:rounded-xl object-contain bg-white/10 border border-gold/25 animate-logo-glow group-hover:scale-105 transition-transform shrink-0"
                 />
               ) : (
-                <img src="/logo.svg" alt={settings.siteName} className="w-36 h-12 rounded-xl object-contain bg-white/10 border border-gold/25 animate-logo-glow group-hover:scale-105 transition-transform" />
+                <img src="/logo.svg" alt={settings.siteName} className="w-16 h-8 sm:w-36 sm:h-12 rounded-lg sm:rounded-xl object-contain bg-white/10 border border-gold/25 animate-logo-glow group-hover:scale-105 transition-transform shrink-0" />
               )}
-              <span className="text-2xl font-black bg-gradient-to-r from-gold via-amber-300 to-gold bg-clip-text text-transparent whitespace-nowrap animate-shimmer">
+              <span className="text-xl sm:text-2xl font-black bg-gradient-to-r from-gold via-amber-300 to-gold bg-clip-text text-transparent whitespace-nowrap animate-shimmer truncate max-[380px]:hidden">
                 {settings.siteName}
               </span>
             </Link>
