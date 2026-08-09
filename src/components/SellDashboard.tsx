@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/auth-context";
+import { useCurrency } from "@/lib/currency-context";
 import {
   subscribeProducts,
   createProduct,
@@ -10,13 +11,10 @@ import {
   uploadImage,
 } from "@/lib/store";
 import { games, getAllDivisions } from "@/lib/gameData";
-import type { AppUser, Product } from "@/lib/types";
+import type { AppUser, Product, Currency } from "@/lib/types";
 
 export default function SellDashboard() {
   const { user, profile, requestSellerAccess, activateSellerFromWallet, updateNickname } = useAuth();
-  const [paymentOpen, setPaymentOpen] = useState(false);
-  const [paymentReference, setPaymentReference] = useState("");
-  const [paymentSent, setPaymentSent] = useState(false);
 
   if (!user || !profile) {
     return (
@@ -28,52 +26,11 @@ export default function SellDashboard() {
 
   if (!profile.isSeller) {
     return (
-      <div className="max-w-2xl mx-auto px-4 py-24 text-center">
-        <div className="glass-card p-12 neon-glow">
-          <div className="text-6xl mb-6">💰</div>
-          <h2 className="text-3xl font-bold text-white mb-4">
-            Become a Seller
-          </h2>
-          <p className="text-slate-400 mb-4">
-            Activate your seller account once for $1, then list accounts and chat with buyers directly.
-          </p>
-          {profile.sellerPaymentStatus === "pending" || paymentSent ? (
-            <div className="rounded-xl border border-gold/30 bg-gold/5 p-4 text-sm text-gold">
-              Payment submitted. An admin will verify it before seller access is enabled.
-            </div>
-          ) : (
-            <div className="flex flex-col sm:flex-row justify-center gap-3">
-              <button onClick={async () => { try { await activateSellerFromWallet(); } catch { setPaymentOpen(true); } }} className="px-6 py-3 rounded-xl bg-gradient-to-r from-neon-blue to-neon-purple text-black font-bold hover:opacity-90 transition-opacity">Pay $1 from wallet ({(profile.wallet?.USD ?? 0).toFixed(2)} USD)</button>
-              <button onClick={() => setPaymentOpen(true)} className="px-6 py-3 rounded-xl border border-gold/40 text-gold font-bold hover:bg-gold/10 transition-opacity">External payment</button>
-            </div>
-          )}
-        </div>
-        {paymentOpen && (
-          <div className="fixed inset-0 z-[80] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-            <div className="glass-card w-full max-w-md p-6 text-left">
-              <h3 className="text-xl font-bold text-white mb-2">Seller activation payment</h3>
-              <p className="text-sm text-slate-400 mb-4">Pay $1 using any method below, then enter the transaction reference.</p>
-              <div className="grid grid-cols-2 gap-3 mb-4">
-                <div className="rounded-xl bg-white p-2 flex items-center justify-center">
-                  <img src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=apdoapdo5%40instapay" alt="InstaPay QR for apdoapdo5@instapay" className="w-full max-w-[180px]" />
-                </div>
-                <div className="rounded-xl border border-gold/30 bg-gold/5 p-3 text-xs text-slate-300 space-y-2">
-                  <strong className="text-gold block">Payment methods</strong>
-                  <div>InstaPay: <b>01229938115</b></div>
-                  <div>Vodafone Cash: <b>01229938115</b></div>
-                  <div>Orange Cash: <b>01229938115</b></div>
-                  <div className="text-slate-500">InstaPay account: apdoapdo5@instapay</div>
-                </div>
-              </div>
-              <input value={paymentReference} onChange={(e) => setPaymentReference(e.target.value)} className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-white outline-none mb-4" placeholder="Transaction reference" />
-              <div className="flex gap-3">
-                <button onClick={() => setPaymentOpen(false)} className="flex-1 py-2.5 rounded-xl bg-white/10 text-slate-300">Cancel</button>
-                <button disabled={!paymentReference.trim()} onClick={async () => { await requestSellerAccess(paymentReference.trim()); setPaymentSent(true); setPaymentOpen(false); }} className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-neon-blue to-neon-purple text-black font-semibold disabled:opacity-40">Submit payment</button>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
+      <SellActivation
+        profile={profile}
+        activateSellerFromWallet={activateSellerFromWallet}
+        requestSellerAccess={requestSellerAccess}
+      />
     );
   }
 
@@ -86,6 +43,110 @@ export default function SellDashboard() {
   );
 }
 
+function SellActivation({
+  profile,
+  activateSellerFromWallet,
+  requestSellerAccess,
+}: {
+  profile: AppUser;
+  activateSellerFromWallet: () => Promise<void>;
+  requestSellerAccess: (reference: string) => Promise<void>;
+}) {
+  const { format } = useCurrency();
+  const [paymentOpen, setPaymentOpen] = useState(false);
+  const [paymentReference, setPaymentReference] = useState("");
+  const [paymentSent, setPaymentSent] = useState(false);
+
+  return (
+    <div className="max-w-2xl mx-auto px-4 py-24 text-center">
+      <div className="glass-card p-12 neon-glow">
+        <div className="text-6xl mb-6">💰</div>
+        <h2 className="text-3xl font-bold text-white mb-4">
+          Become a Seller
+        </h2>
+        <p className="text-slate-400 mb-4">
+          Activate your seller account once for{" "}
+          <span className="text-gold font-semibold">{format(1)}</span>, then
+          list accounts and chat with buyers directly.
+        </p>
+        {profile.sellerPaymentStatus === "pending" || paymentSent ? (
+          <div className="rounded-xl border border-gold/30 bg-gold/5 p-4 text-sm text-gold">
+            Payment submitted. An admin will verify it before seller access is enabled.
+          </div>
+        ) : (
+          <div className="flex flex-col sm:flex-row justify-center gap-3">
+            <button
+              onClick={async () => {
+                try {
+                  await activateSellerFromWallet();
+                } catch {
+                  setPaymentOpen(true);
+                }
+              }}
+              className="px-6 py-3 rounded-xl bg-gradient-to-r from-neon-blue to-neon-purple text-black font-bold hover:opacity-90 transition-opacity"
+            >
+              Pay {format(1)} from wallet ({format(profile.wallet?.USD ?? 0)} USD)
+            </button>
+            <button
+              onClick={() => setPaymentOpen(true)}
+              className="px-6 py-3 rounded-xl border border-gold/40 text-gold font-bold hover:bg-gold/10 transition-colors"
+            >
+              External payment
+            </button>
+          </div>
+        )}
+      </div>
+      {paymentOpen && (
+        <div className="fixed inset-0 z-[80] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="glass-card w-full max-w-md p-6 text-left">
+            <h3 className="text-xl font-bold text-white mb-2">Seller activation payment</h3>
+            <p className="text-sm text-slate-400 mb-4">
+              Pay {format(1)} using any method below, then enter the transaction reference.
+            </p>
+            <div className="grid grid-cols-2 gap-3 mb-4">
+              <div className="rounded-xl bg-white p-2 flex items-center justify-center">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=apdoapdo5%40instapay" alt="InstaPay QR for apdoapdo5@instapay" className="w-full max-w-[180px]" />
+              </div>
+              <div className="rounded-xl border border-gold/30 bg-gold/5 p-3 text-xs text-slate-300 space-y-2">
+                <strong className="text-gold block">Payment methods</strong>
+                <div>InstaPay: <b>01229938115</b></div>
+                <div>Vodafone Cash: <b>01229938115</b></div>
+                <div>Orange Cash: <b>01229938115</b></div>
+                <div className="text-slate-500">InstaPay account: apdoapdo5@instapay</div>
+              </div>
+            </div>
+            <input
+              value={paymentReference}
+              onChange={(e) => setPaymentReference(e.target.value)}
+              className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-white outline-none mb-4"
+              placeholder="Transaction reference"
+            />
+            <div className="flex gap-3">
+              <button
+                onClick={() => setPaymentOpen(false)}
+                className="flex-1 py-2.5 rounded-xl bg-white/10 text-slate-300"
+              >
+                Cancel
+              </button>
+              <button
+                disabled={!paymentReference.trim()}
+                onClick={async () => {
+                  await requestSellerAccess(paymentReference.trim());
+                  setPaymentSent(true);
+                  setPaymentOpen(false);
+                }}
+                className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-neon-blue to-neon-purple text-black font-semibold disabled:opacity-40"
+              >
+                Submit payment
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function SellDashboardInner({
   userId,
   profile,
@@ -95,6 +156,7 @@ function SellDashboardInner({
   profile: AppUser;
   updateNickname: (nickname: string) => Promise<void>;
 }) {
+  const { currency: chosenCurrency, format } = useCurrency();
   const [myProducts, setMyProducts] = useState<Product[]>([]);
   const [nickname, setNickname] = useState(profile.nickname);
   const [savingNickname, setSavingNickname] = useState(false);
@@ -104,7 +166,7 @@ function SellDashboardInner({
   const [rank, setRank] = useState("");
   const [region, setRegion] = useState("EU");
   const [price, setPrice] = useState("50");
-  const [currency, setCurrency] = useState<"EGP" | "USD" | "EUR" | "KWD" | "SAR">("USD");
+  const [currency, setCurrency] = useState<Currency>(chosenCurrency);
   const [description, setDescription] = useState("");
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [uploading, setUploading] = useState(false);
@@ -238,7 +300,7 @@ function SellDashboardInner({
             <div>
               <label className="text-sm text-slate-400 mb-1 block">Currency</label>
               <select value={currency} onChange={(e) => setCurrency(e.target.value as typeof currency)} className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-white outline-none">
-                {(["EGP", "USD", "EUR", "KWD", "SAR"] as const).map((item) => <option key={item}>{item}</option>)}
+                {(["EGP", "USD", "EUR", "KWD", "SAR"] as const).map((item) => <option key={item} className="bg-charcoal">{item}</option>)}
               </select>
             </div>
             <div>
@@ -273,7 +335,7 @@ function SellDashboardInner({
             </div>
             <div>
               <label className="text-sm text-slate-400 mb-1 block">
-                Price (USD)
+                Price ({currency})
               </label>
               <input
                 type="number"
@@ -361,7 +423,7 @@ function SellDashboardInner({
                 <div className="flex-1 min-w-0">
                   <div className="font-semibold text-white truncate">{p.title}</div>
                   <div className="text-xs text-slate-400">
-                    {p.game} · {p.rank} · ${p.price} ·{" "}
+                    {p.game} · {p.rank} · {format(p.price, p.currency ?? "USD")} ·{" "}
                     <span
                       className={
                         p.status === "active"

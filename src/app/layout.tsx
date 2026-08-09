@@ -4,8 +4,10 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/lib/auth-context";
 import { SettingsProvider } from "@/lib/settings-context";
+import { CurrencyProvider } from "@/lib/currency-context";
 import FirebaseProvider from "@/components/FirebaseProvider";
 import { LanguageProvider } from "@/lib/language-context";
+import SplashScreen from "@/components/SplashScreen";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -24,7 +26,10 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <FirebaseProvider />
         <AuthProvider>
           <SettingsProvider>
-            <LanguageProvider>{children}</LanguageProvider>
+            <CurrencyProvider>
+              <LanguageProvider>{children}</LanguageProvider>
+            </CurrencyProvider>
+            <SplashScreen />
           </SettingsProvider>
         </AuthProvider>
       </body>

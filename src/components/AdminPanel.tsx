@@ -107,7 +107,7 @@ function UsersTab({ me }: { me: string }) {
       <div className="p-4 border-b border-white/10 flex flex-wrap items-center gap-2">
         <span className="text-xs text-slate-400">Wallet adjustment:</span>
         <select value={walletCurrency} onChange={(e) => setWalletCurrency(e.target.value as Currency)} className="px-2 py-1 rounded bg-white/5 text-xs text-white">
-          {(["EGP", "USD", "EUR", "KWD", "SAR"] as Currency[]).map((currency) => <option key={currency}>{currency}</option>)}
+          {(["EGP", "USD", "EUR", "KWD", "SAR"] as Currency[]).map((currency) => <option key={currency} className="bg-charcoal">{currency}</option>)}
         </select>
         <input value={walletAmount} onChange={(e) => setWalletAmount(e.target.value)} type="number" min="0.01" step="0.01" className="w-20 px-2 py-1 rounded bg-white/5 text-xs text-white" />
         <span className="text-[11px] text-slate-500">Use + or - beside each customer.</span>

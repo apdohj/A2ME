@@ -12,11 +12,13 @@ import {
   calculatePrice,
 } from "@/lib/gameData";
 import { GameLogo } from "@/components/GameLogo";
+import { useCurrency } from "@/lib/currency-context";
 
 function BoostCalculatorInner() {
   const searchParams = useSearchParams();
   const gameParam = searchParams.get("game");
   const initialGame = games.findIndex((g) => g.id === gameParam);
+  const { format } = useCurrency();
 
   const [selectedGame, setSelectedGame] = useState(
     initialGame >= 0 ? initialGame : 0
@@ -375,7 +377,7 @@ function BoostCalculatorInner() {
             <div className="p-4 rounded-xl bg-white/5 mb-6">
               <div className="text-xs text-slate-400 mb-1">Total Price</div>
               <div className="text-4xl font-black text-white">
-                ${price.toFixed(2)}
+                {format(price)}
               </div>
             </div>
 

@@ -8,14 +8,20 @@ import { games } from "@/lib/gameData";
 import { GameLogo } from "@/components/GameLogo";
 import { useAuth } from "@/lib/auth-context";
 import { useSettings } from "@/lib/settings-context";
+import { useCurrency } from "@/lib/currency-context";
+import { CURRENCIES } from "@/lib/currency";
 import { currencySymbols, type Currency } from "@/lib/types";
 
 export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [gamesOpen, setGamesOpen] = useState(false);
+  const [currencyOpen, setCurrencyOpen] = useState(false);
   const { user, profile, logout } = useAuth();
   const { settings } = useSettings();
+  const { currency, setCurrency, format } = useCurrency();
   const router = useRouter();
+  const walletFrom = (profile?.walletCurrency ?? "USD") as Currency;
+  const walletBalance = profile?.wallet?.[walletFrom] ?? 0;
   const localizedNavLinks = [
     { label: "Home", href: "/" },
     { label: "Marketplace", href: "/marketplace" },
@@ -34,18 +40,18 @@ export default function Header() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
-            <Link href="/" className="flex items-center gap-2 group shrink-0">
+            <Link href="/" className="flex items-center gap-2.5 group shrink-0">
               {settings.logoUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={settings.logoUrl}
                   alt={settings.siteName}
-                  className="w-24 h-9 rounded-lg object-contain bg-white/10 border border-white/10"
+                  className="w-36 h-12 rounded-xl object-contain bg-white/10 border border-gold/25 animate-logo-glow group-hover:scale-105 transition-transform"
                 />
               ) : (
-                <img src="/logo.svg" alt={settings.siteName} className="w-24 h-9 rounded-lg object-contain bg-white/10 border border-white/10" />
+                <img src="/logo.svg" alt={settings.siteName} className="w-36 h-12 rounded-xl object-contain bg-white/10 border border-gold/25 animate-logo-glow group-hover:scale-105 transition-transform" />
               )}
-              <span className="text-lg font-bold bg-gradient-to-r from-gold to-amber-400 bg-clip-text text-transparent whitespace-nowrap">
+              <span className="text-2xl font-black bg-gradient-to-r from-gold via-amber-300 to-gold bg-clip-text text-transparent whitespace-nowrap animate-shimmer">
                 {settings.siteName}
               </span>
             </Link>
@@ -110,6 +116,58 @@ export default function Header() {
 
             {/* Right Side */}
             <div className="hidden lg:flex items-center gap-2">
+              {/* Currency selector */}
+              <div className="relative">
+                <button
+                  onClick={() => setCurrencyOpen(!currencyOpen)}
+                  className="px-3 py-1.5 text-sm font-semibold border border-white/15 rounded-xl text-slate-200 hover:bg-white/5 hover:border-gold/40 transition-colors flex items-center gap-1.5 whitespace-nowrap"
+                >
+                  <span className="text-gold">{currencySymbols[currency]}</span>
+                  {currency}
+                  <svg
+                    className={`w-3 h-3 text-slate-500 transition-transform ${currencyOpen ? "rotate-180" : ""}`}
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                <AnimatePresence>
+                  {currencyOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      className="absolute right-0 top-full mt-2 p-1 min-w-[170px] rounded-xl bg-[#0c0c0c] border border-white/10 shadow-2xl shadow-black/70"
+                    >
+                      <div className="px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 border-b border-white/10 mb-1">
+                        Display currency
+                      </div>
+                      {CURRENCIES.map((c) => (
+                        <button
+                          key={c}
+                          onClick={() => {
+                            setCurrency(c);
+                            setCurrencyOpen(false);
+                          }}
+                          className={`w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg text-sm transition-colors ${
+                            currency === c
+                              ? "bg-gold/15 text-gold"
+                              : "text-slate-200 hover:bg-white/5"
+                          }`}
+                        >
+                          <span className="font-medium">{c}</span>
+                          <span className="text-xs text-slate-500">
+                            {currencySymbols[c]}
+                          </span>
+                        </button>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
               <Link
                 href="/sell"
                 className="px-3 py-1.5 text-sm font-semibold rounded-xl border border-gold/50 text-gold hover:bg-gold/10 transition-colors whitespace-nowrap"
@@ -124,7 +182,7 @@ export default function Header() {
                     title="Wallet balance"
                     className="px-3 py-1.5 rounded-xl bg-gold/10 border border-gold/30 text-gold text-xs font-bold whitespace-nowrap hover:bg-gold/20 transition-colors"
                   >
-                    {currencySymbols[(profile?.walletCurrency ?? "USD") as Currency]} {(profile?.wallet?.[profile?.walletCurrency ?? "USD"] ?? 0).toFixed(2)}
+                    {format(walletBalance, walletFrom)}
                   </Link>
                   <Link
                     href="/messages"
@@ -213,6 +271,24 @@ export default function Header() {
                 </Link>
               ))}
               <hr className="border-white/10 my-2" />
+              <div className="flex items-center gap-2 px-1">
+                <span className="text-[11px] text-slate-500">Currency:</span>
+                <div className="flex flex-wrap gap-1.5">
+                  {CURRENCIES.map((c) => (
+                    <button
+                      key={c}
+                      onClick={() => setCurrency(c)}
+                      className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-colors ${
+                        currency === c
+                          ? "bg-gold/20 border border-gold/50 text-gold"
+                          : "bg-white/5 border border-white/10 text-slate-300"
+                      }`}
+                    >
+                      {c}
+                    </button>
+                  ))}
+                </div>
+              </div>
               <Link
                 href="/sell"
                 className="block px-4 py-2.5 rounded-xl border border-gold/50 text-gold text-center text-sm font-semibold"
@@ -225,7 +301,7 @@ export default function Header() {
                     href="/dashboard"
                     className="block px-4 py-2.5 rounded-xl bg-gold/10 border border-gold/30 text-gold text-center text-sm font-bold"
                   >
-                    💳 Wallet: {currencySymbols[(profile?.walletCurrency ?? "USD") as Currency]} {(profile?.wallet?.[profile?.walletCurrency ?? "USD"] ?? 0).toFixed(2)}
+                    💳 Wallet: {format(walletBalance, walletFrom)}
                   </Link>
                   <Link
                     href="/messages"

@@ -25,6 +25,10 @@ body {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
+:root {
+  color-scheme: dark;
+}
+
 /* Glassmorphism card */
 .glass-card {
   background: rgba(255, 255, 255, 0.04);
@@ -43,6 +47,34 @@ body {
 /* Gold glow effects */
 .neon-glow {
   box-shadow: 0 0 20px rgba(245, 197, 24, 0.25), 0 0 60px rgba(245, 197, 24, 0.08);
+}
+
+/* Header logo + brand name animations */
+@keyframes logo-glow-pulse {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(245, 197, 24, 0.18), 0 0 30px rgba(245, 197, 24, 0.05);
+  }
+  50% {
+    box-shadow: 0 0 24px rgba(245, 197, 24, 0.5), 0 0 60px rgba(245, 197, 24, 0.15);
+  }
+}
+
+.animate-logo-glow {
+  animation: logo-glow-pulse 2.8s ease-in-out infinite;
+}
+
+@keyframes shimmer-text {
+  0% {
+    background-position: 200% center;
+  }
+  100% {
+    background-position: -200% center;
+  }
+}
+
+.animate-shimmer {
+  background-size: 200% auto;
+  animation: shimmer-text 3.2s linear infinite;
 }
 
 .neon-text {

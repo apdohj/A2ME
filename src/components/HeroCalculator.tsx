@@ -11,9 +11,11 @@ import {
 } from "@/lib/gameData";
 import { GameLogo } from "@/components/GameLogo";
 import { useSettings } from "@/lib/settings-context";
+import { useCurrency } from "@/lib/currency-context";
 
 export default function HeroCalculator() {
   const { settings } = useSettings();
+  const { format } = useCurrency();
   const [selectedGame, setSelectedGame] = useState(0);
   const [fromRank, setFromRank] = useState(0);
   const [toRank, setToRank] = useState(3);
@@ -256,7 +258,7 @@ export default function HeroCalculator() {
                     Estimated Price
                   </div>
                   <div className="text-3xl font-black text-white">
-                    ${price.toFixed(2)}
+                    {format(price)}
                   </div>
                 </div>
                 <div className="text-right">

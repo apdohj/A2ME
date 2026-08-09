@@ -7,6 +7,7 @@ import { subscribeProducts, getOrCreateConversation } from "@/lib/store";
 import { games } from "@/lib/gameData";
 import { GameLogoById } from "@/components/GameLogo";
 import { useAuth } from "@/lib/auth-context";
+import { useCurrency } from "@/lib/currency-context";
 import type { Product } from "@/lib/types";
 
 const gameFilters = ["All", ...games.map((game) => game.name), "Other"];
@@ -19,6 +20,7 @@ export default function MarketplaceContent() {
   const [sortBy, setSortBy] = useState("price-asc");
   const [loading, setLoading] = useState(true);
   const { user, profile } = useAuth();
+  const { format } = useCurrency();
   const router = useRouter();
 
   useEffect(() => {
@@ -118,8 +120,8 @@ export default function MarketplaceContent() {
               onChange={(e) => setSortBy(e.target.value)}
               className="px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-sm text-slate-300 outline-none"
             >
-              <option value="price-asc">Price: Low → High</option>
-              <option value="price-desc">Price: High → Low</option>
+              <option value="price-asc" className="bg-charcoal">Price: Low → High</option>
+              <option value="price-desc" className="bg-charcoal">Price: High → Low</option>
             </select>
           </div>
         </div>
@@ -185,7 +187,7 @@ export default function MarketplaceContent() {
                 </p>
                 <div className="flex items-center justify-between mt-auto">
                   <div className="text-xl font-black text-white">
-                    {product.currency ?? "USD"} {product.price}
+                    {format(product.price, product.currency ?? "USD")}
                   </div>
                   <button
                     onClick={() => contactSeller(product)}
