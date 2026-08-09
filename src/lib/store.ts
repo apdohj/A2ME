@@ -311,6 +311,39 @@ export async function sendMessage(
   });
 }
 
+/* ---------------- Support (client ↔ admin) ---------------- */
+
+export async function getAdmins(): Promise<AppUser[]> {
+  const snap = await getDocs(
+    query(collection(firestore, "users"), where("role", "==", "admin"))
+  );
+  return snap.docs.map((d) => ({ uid: d.id, ...d.data() } as AppUser));
+}
+
+export async function getOrCreateSupportConversation(
+  me: AppUser
+): Promise<string> {
+  const admins = await getAdmins();
+  if (admins.length === 0) throw new Error("no-admin-available");
+  return getOrCreateConversation(me, admins[0]);
+}
+
+export function subscribeAllConversations(
+  cb: (conversations: Conversation[]) => void
+): () => void {
+  return onSnapshot(
+    collection(firestore, "conversations"),
+    (snap) => {
+      const convs = snap.docs.map(
+        (d) => ({ id: d.id, ...d.data() } as Conversation)
+      );
+      convs.sort((a, b) => b.lastTime - a.lastTime);
+      cb(convs);
+    },
+    () => cb([])
+  );
+}
+
 /* ---------------- Settings ---------------- */
 
 const SETTINGS_REF = doc(firestore, "settings", "public");

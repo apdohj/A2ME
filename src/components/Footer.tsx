@@ -79,6 +79,11 @@ export default function Footer() {
             <h4 className="text-sm font-semibold text-white mb-4">Support</h4>
             <ul className="space-y-2.5 text-sm text-slate-400">
               <li>
+                <Link href="/support" className="hover:text-neon-blue transition-colors">
+                  Contact Support
+                </Link>
+              </li>
+              <li>
                 <a href="#faq" className="hover:text-neon-blue transition-colors">
                   FAQ
                 </a>
@@ -128,12 +133,9 @@ export default function Footer() {
           <p className="text-sm text-slate-500">
             © 2026 {settings.siteName}. All rights reserved.
           </p>
-          <div className="flex items-center gap-4 text-sm text-slate-500">
-            <span>💳 Visa</span>
-            <span>💳 Mastercard</span>
-            <span>💰 PayPal</span>
-            <span>₿ Crypto</span>
-          </div>
+          <p className="text-xs text-slate-600">
+            Secure payments via regional methods.
+          </p>
         </div>
 
         {/* Hidden admin access — very small, at the very bottom */}

@@ -17,6 +17,7 @@ import {
   saveCatalog,
   deleteCatalog,
   adjustWallet,
+  subscribeAllConversations,
 } from "@/lib/store";
 import { useAuth } from "@/lib/auth-context";
 import { useSettings } from "@/lib/settings-context";
@@ -24,9 +25,9 @@ import { useCatalog } from "@/lib/catalog-context";
 import { games } from "@/lib/gameData";
 import { GameLogo } from "@/components/GameLogo";
 import { catalogs, otherCatalog, type FilterField } from "@/lib/filterCatalog";
-import type { AppUser, Product, Currency } from "@/lib/types";
+import type { AppUser, Product, Currency, Conversation } from "@/lib/types";
 
-type Tab = "users" | "products" | "games" | "catalog" | "settings";
+type Tab = "users" | "products" | "games" | "catalog" | "support" | "settings";
 
 export default function AdminPanel() {
   const { user: me } = useAuth();
@@ -57,6 +58,7 @@ export default function AdminPanel() {
             { key: "products" as const, label: "🛒 Products" },
             { key: "games" as const, label: "🎮 Game Logos" },
             { key: "catalog" as const, label: "📋 Filter Catalogs" },
+            { key: "support" as const, label: "💬 Support Inbox" },
             { key: "settings" as const, label: "⚙️ Site Settings" },
           ]
         ).map((t) => (
@@ -78,6 +80,7 @@ export default function AdminPanel() {
       {tab === "products" && <ProductsTab />}
       {tab === "games" && <GamesTab gameLogos={settings.gameLogos} />}
       {tab === "catalog" && <CatalogTab />}
+      {tab === "support" && <SupportTab />}
       {tab === "settings" && (
         <SettingsTab
           key={settings.siteName + settings.colors.primary + settings.logoUrl}
@@ -473,6 +476,87 @@ function GamesTab({
           );
         })}
       </div>
+    </div>
+  );
+}
+
+/* ---------------- Support Inbox Tab ---------------- */
+
+function SupportTab() {
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const { user } = useAuth();
+
+  useEffect(() => {
+    const unsub = subscribeAllConversations(setConversations);
+    return unsub;
+  }, []);
+
+  const otherNames = (conv: Conversation) => {
+    return (conv.participants ?? [])
+      .filter((p) => p !== user?.uid)
+      .map((p) => conv.names?.[p] ?? "User")
+      .join(", ");
+  };
+
+  return (
+    <div>
+      <div className="glass-card p-5 mb-6 text-sm text-slate-300">
+        Every chat on the site appears here — support messages from all clients
+        as well as marketplace conversations. Click{" "}
+        <span className="text-gold">Open chat</span> to read and reply from the
+        account of whoever started it.
+      </div>
+      {conversations.length === 0 ? (
+        <div className="glass-card p-10 text-center text-slate-400">
+          No conversations yet. When a client contacts support you&apos;ll see
+          it here.
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {conversations.map((conv) => (
+            <div
+              key={conv.id}
+              className="glass-card p-4 flex flex-col sm:flex-row items-start sm:items-center gap-4"
+            >
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-neon-blue/20 to-neon-purple/20 flex items-center justify-center text-xl border border-white/10 shrink-0">
+                {conv.productId === null ? "💬" : "🛒"}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex flex-wrap items-center gap-2 mb-1">
+                  <span className="font-semibold text-white">
+                    {otherNames(conv) || "Unknown"}
+                  </span>
+                  {conv.productId === null ? (
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-neon-blue/15 text-neon-blue font-semibold">
+                      Support
+                    </span>
+                  ) : (
+                    conv.productTitle && (
+                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-gold/15 text-gold font-semibold">
+                        {conv.productTitle}
+                      </span>
+                    )
+                  )}
+                  {conv.lastTime > 0 && (
+                    <span className="text-[11px] text-slate-500">
+                      {new Date(conv.lastTime).toLocaleString()}
+                    </span>
+                  )}
+                </div>
+                <div className="text-sm text-slate-400 truncate">
+                  {conv.lastMessage || "No messages yet."}
+                </div>
+              </div>
+              <a
+                href={`/messages/${conv.id}`}
+                className="px-4 py-2 rounded-xl bg-gradient-to-r from-neon-blue to-neon-purple text-black text-xs font-semibold hover:opacity-90 transition-opacity shrink-0"
+              >
+                Open chat
+              </a>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

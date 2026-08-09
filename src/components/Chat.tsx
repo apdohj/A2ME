@@ -110,7 +110,11 @@ export default function Chat({ convId }: { convId: string }) {
       </div>
 
       <p className="text-xs text-slate-500 text-center mt-4">
-        {profile?.isSeller ? "You can also share account details securely here." : "Buyer chat — only you and the seller can see these messages."}
+        {conv?.productId === null
+          ? "Support chat — the team will reply as soon as possible."
+          : profile?.isSeller
+            ? "You can also share account details securely here."
+            : "Buyer chat — only you and the seller can see these messages."}
       </p>
     </div>
   );

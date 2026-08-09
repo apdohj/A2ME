@@ -22,7 +22,7 @@ const faqs = [
   {
     question: "What payment methods do you accept?",
     answer:
-      "We accept all major credit/debit cards, PayPal, cryptocurrency (BTC, ETH, USDT), and various regional payment methods. All transactions are encrypted and secure.",
+      "We accept InstaPay, Vodafone Cash, Orange Cash and other regional payment methods. All transactions are encrypted and secure.",
   },
   {
     question: "How do I communicate with my booster?",
