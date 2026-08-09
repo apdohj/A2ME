@@ -40,9 +40,9 @@ export default function SplashScreen() {
             />
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={settings.logoUrl || "/logo.svg"}
+              src="/home/header-logo.png"
               alt={name}
-              className="relative w-32 h-32 sm:w-36 sm:h-36 object-contain rounded-3xl bg-white/10 border border-gold/40"
+              className="relative w-64 sm:w-80 object-contain"
             />
           </motion.div>
 
