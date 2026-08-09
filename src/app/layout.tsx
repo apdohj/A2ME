@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 import { Inter } from "next/font/google";
 import "./globals.css";
@@ -10,7 +10,6 @@ import FirebaseProvider from "@/components/FirebaseProvider";
 import { LanguageProvider } from "@/lib/language-context";
 import SplashScreen from "@/components/SplashScreen";
 import FloatingSupportButton from "@/components/FloatingSupportButton";
-import { DevicePreviewProvider } from "@/lib/device-preview-context";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -22,6 +21,13 @@ export const metadata: Metadata = {
   description: "Professional gaming rank boosting and account marketplace. Buy and sell game accounts with real sellers.",
 };
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  viewportFit: "cover",
+};
+
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" dir="ltr" className="dark">
@@ -31,13 +37,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           <SettingsProvider>
             <CurrencyProvider>
               <CatalogProvider>
-                <LanguageProvider>
-                <DevicePreviewProvider>
-                  {children}
-                  <SplashScreen />
-                  <FloatingSupportButton />
-                </DevicePreviewProvider>
-              </LanguageProvider>
+                <LanguageProvider>{children}</LanguageProvider>
               </CatalogProvider>
             </CurrencyProvider>
             <SplashScreen />

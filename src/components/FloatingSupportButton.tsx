@@ -30,7 +30,7 @@ export default function FloatingSupportButton() {
   };
 
   return (
-    <div className="fixed bottom-5 right-5 z-[90] flex flex-col items-end gap-2">
+    <div className="fixed bottom-[calc(1.25rem+env(safe-area-inset-bottom))] right-5 z-[90] flex flex-col items-end gap-2">
       {error && (
         <div className="text-[11px] text-red-400 bg-black/90 border border-red-500/30 rounded-lg px-3 py-2 max-w-[220px] shadow-xl shadow-black/50">
           Support isn&apos;t available yet. Try again later.

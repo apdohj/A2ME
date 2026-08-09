@@ -11,7 +11,6 @@ import { useSettings } from "@/lib/settings-context";
 import { useCurrency } from "@/lib/currency-context";
 import { CURRENCIES } from "@/lib/currency";
 import { currencySymbols, type Currency } from "@/lib/types";
-import DeviceSwitcher from "@/components/DeviceSwitcher";
 
 export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -47,12 +46,12 @@ export default function Header() {
                 <img
                   src={settings.logoUrl}
                   alt={settings.siteName}
-                  className="w-16 h-8 sm:w-36 sm:h-12 rounded-lg sm:rounded-xl object-contain bg-white/10 border border-gold/25 animate-logo-glow group-hover:scale-105 transition-transform shrink-0"
+                  className="w-24 h-10 sm:w-36 sm:h-12 rounded-lg sm:rounded-xl object-contain bg-white/10 border border-gold/25 animate-logo-glow group-hover:scale-105 transition-transform shrink-0"
                 />
               ) : (
-                <img src="/logo.svg" alt={settings.siteName} className="w-16 h-8 sm:w-36 sm:h-12 rounded-lg sm:rounded-xl object-contain bg-white/10 border border-gold/25 animate-logo-glow group-hover:scale-105 transition-transform shrink-0" />
+                <img src="/logo.svg" alt={settings.siteName} className="w-24 h-10 sm:w-36 sm:h-12 rounded-lg sm:rounded-xl object-contain bg-white/10 border border-gold/25 animate-logo-glow group-hover:scale-105 transition-transform shrink-0" />
               )}
-              <span className="text-xl sm:text-2xl font-black bg-gradient-to-r from-gold via-amber-300 to-gold bg-clip-text text-transparent whitespace-nowrap animate-shimmer truncate max-[380px]:hidden">
+              <span className="text-xl sm:text-2xl font-black bg-gradient-to-r from-gold via-amber-300 to-gold bg-clip-text text-transparent whitespace-nowrap animate-shimmer truncate">
                 {settings.siteName}
               </span>
             </Link>
@@ -117,9 +116,6 @@ export default function Header() {
 
             {/* Right Side */}
             <div className="hidden lg:flex items-center gap-2">
-              {/* Preview view switcher */}
-              <DeviceSwitcher />
-
               {/* Currency selector */}
               <div className="relative">
                 <button
@@ -249,7 +245,7 @@ export default function Header() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="lg:hidden glass-card border-0 border-b border-glass-border rounded-none"
+            className="lg:hidden glass-card border-0 border-b border-glass-border rounded-none max-h-[calc(100dvh-4rem)] overflow-y-auto"
           >
             <div className="px-4 py-4 space-y-2">
               {games.map((game) => (
@@ -293,8 +289,6 @@ export default function Header() {
                   ))}
                 </div>
               </div>
-              <hr className="border-white/10 my-2" />
-              <DeviceSwitcher variant="menu" />
               <Link
                 href="/sell"
                 className="block px-4 py-2.5 rounded-xl border border-gold/50 text-gold text-center text-sm font-semibold"

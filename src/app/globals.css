@@ -19,10 +19,29 @@
   scrollbar-color: #2b2b2b #050505;
 }
 
+html {
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body {
+  overflow-x: clip;
+  overscroll-behavior-y: none;
+}
+
 body {
   background-color: var(--color-obsidian, #050505);
   color: #f5f5f5;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+  text-rendering: optimizeLegibility;
+}
+
+/* iOS momentum scrolling for inner scroll areas */
+.overflow-y-auto,
+.overflow-y-scroll {
+  -webkit-overflow-scrolling: touch;
 }
 
 :root {
