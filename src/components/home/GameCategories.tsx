@@ -24,9 +24,9 @@ export default function GameCategories() {
   const [active, setActive] = useState("valorant");
 
   return (
-    <section className="bg-a2-bg py-8">
+    <section className="bg-a2-bg py-6 sm:py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center gap-3 overflow-x-auto pb-2 -mx-4 px-4 lg:overflow-visible lg:flex-wrap lg:justify-center lg:gap-3 lg:mx-0 lg:px-0 scrollbar-none">
+        <div className="flex items-center gap-3 overflow-x-auto pb-2 scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0">
           {GAMES.map((g) => {
             const selected = active === g.id;
             return (
@@ -36,7 +36,7 @@ export default function GameCategories() {
                   setActive(g.id);
                   router.push(`/marketplace?game=${encodeURIComponent(g.name)}`);
                 }}
-                className={`group flex flex-col items-center gap-2.5 px-5 py-4 rounded-2xl border min-w-[118px] transition-all duration-300 ${
+                className={`group flex flex-col items-center gap-2.5 px-5 py-4 rounded-2xl border min-w-[130px] shrink-0 transition-all duration-300 ${
                   selected
                     ? "border-a2-gold bg-a2-gold/10 a2-glow-soft"
                     : "border-a2-border bg-a2-card hover:border-a2-gold/40 hover:bg-a2-card/80"
@@ -48,7 +48,9 @@ export default function GameCategories() {
                     src={`/home/games/${g.id}.png`}
                     alt={g.name}
                     className={`h-9 w-9 object-contain transition-opacity ${
-                      selected ? "opacity-100" : "opacity-70 group-hover:opacity-100"
+                      selected
+                        ? "opacity-100"
+                        : "opacity-70 group-hover:opacity-100"
                     }`}
                   />
                 </span>

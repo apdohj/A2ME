@@ -204,7 +204,7 @@ export default function Marketplace() {
           </div>
         </div>
 
-        <div className="flex gap-8">
+        <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
           {/* Sidebar */}
           <aside className="hidden lg:block w-[280px] shrink-0">
             <div className="a2-card p-5 sticky top-24">
@@ -263,19 +263,19 @@ export default function Marketplace() {
             </div>
           </aside>
 
-          {/* Mobile filters button */}
-          <div className="lg:hidden mb-4">
-            <button
-              onClick={() => setSidebarOpen(true)}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-a2-card border border-a2-border text-sm font-semibold text-a2-light"
-            >
-              <SlidersHorizontal className="w-4 h-4 text-a2-gold" />
-              Filters
-            </button>
-          </div>
-
           {/* Cards */}
-          <div className="flex-1 min-w-0">
+          <div className="flex-1 min-w-0 w-full">
+            {/* Mobile filters button */}
+            <div className="lg:hidden mb-4">
+              <button
+                onClick={() => setSidebarOpen(true)}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-a2-card border border-a2-border text-sm font-semibold text-a2-light"
+              >
+                <SlidersHorizontal className="w-4 h-4 text-a2-gold" />
+                Filters
+              </button>
+            </div>
+
             {visible.length === 0 ? (
               <div className="a2-card p-10 text-center text-a2-light/60">
                 No accounts match your filters. Try adjusting the search.
@@ -284,7 +284,7 @@ export default function Marketplace() {
               <div
                 className={
                   layout === "grid"
-                    ? "grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5"
+                    ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5"
                     : "space-y-4"
                 }
               >

@@ -69,9 +69,9 @@ export default function AccountCard({
 
   if (layout === "list") {
     return (
-      <div className="group relative a2-card overflow-hidden flex hover:-translate-y-0.5 transition-all duration-300 hover:border-a2-gold/50 hover:shadow-[0_0_24px_rgba(255,201,40,0.14)]">
+      <div className="group relative w-full max-w-full a2-card overflow-hidden flex hover:-translate-y-0.5 transition-all duration-300 hover:border-a2-gold/50 hover:shadow-[0_0_24px_rgba(255,201,40,0.14)]">
         <div className="w-44 shrink-0">{thumb}</div>
-        <div className="flex-1 flex flex-col sm:flex-row sm:items-center gap-3 p-4">
+        <div className="flex-1 flex flex-col sm:flex-row sm:items-center gap-3 p-4 min-w-0">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1.5">
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -98,8 +98,8 @@ export default function AccountCard({
               </span>
             </div>
           </div>
-          <div className="flex sm:flex-col sm:items-end gap-3 sm:gap-2">
-            <div className="font-display font-bold text-xl text-a2-gold">
+          <div className="flex sm:flex-col sm:items-end gap-3 sm:gap-2 shrink-0">
+            <div className="font-display font-bold text-xl text-a2-gold whitespace-nowrap">
               {account.priceLabel}
             </div>
             <button
@@ -116,10 +116,10 @@ export default function AccountCard({
   }
 
   return (
-    <div className="group relative a2-card overflow-hidden flex flex-col hover:-translate-y-1 transition-all duration-300 hover:border-a2-gold/60 hover:shadow-[0_0_24px_rgba(255,201,40,0.18)]">
+    <div className="group relative w-full max-w-full a2-card overflow-hidden flex flex-col hover:-translate-y-1 transition-all duration-300 hover:border-a2-gold/60 hover:shadow-[0_0_24px_rgba(255,201,40,0.18)]">
       {thumb}
-      <div className="p-4 flex-1 flex flex-col">
-        <div className="flex items-center gap-2 mb-2.5">
+      <div className="p-4 flex-1 flex flex-col min-w-0">
+        <div className="flex items-center gap-2 mb-2.5 min-w-0">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={account.gameLogo}
@@ -130,17 +130,17 @@ export default function AccountCard({
             {account.gameName}
           </span>
         </div>
-        <div className="text-sm text-a2-light/80 font-medium line-clamp-2">
+        <div className="text-sm text-a2-light/80 font-medium line-clamp-2 break-words">
           {account.info}
         </div>
-        <div className="text-xs text-a2-light/50 mt-1">{account.meta}</div>
-        <div className="mt-4 flex items-center justify-between pt-3 border-t border-a2-border">
-          <div className="font-display font-bold text-xl text-a2-gold">
+        <div className="text-xs text-a2-light/50 mt-1 truncate">{account.meta}</div>
+        <div className="mt-4 flex items-center justify-between pt-3 border-t border-a2-border gap-3">
+          <div className="font-display font-bold text-xl text-a2-gold whitespace-nowrap">
             {account.priceLabel}
           </div>
           <button
             onClick={() => onView(account)}
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-a2-gold text-black text-xs font-bold hover:bg-a2-gold-bright transition-colors"
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-a2-gold text-black text-xs font-bold hover:bg-a2-gold-bright transition-colors shrink-0"
           >
             <Eye className="w-3.5 h-3.5" />
             View Details

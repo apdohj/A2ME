@@ -9,7 +9,6 @@ import {
   X,
   Search,
   ShoppingCart,
-  Bell,
   UserPlus,
   LogIn,
   Home,
@@ -36,15 +35,17 @@ const NAV = [
   { label: "Home", href: "/", icon: Home },
   { label: "Browse Accounts", href: "/marketplace", icon: Store },
   { label: "Sell Account", href: "/sell", icon: BadgeDollarSign },
-  { label: "Coaching", href: "/coaching", icon: GraduationCap },
-  { label: "Boosters", href: "/booster", icon: Crown },
   { label: "How It Works", href: "/#how-it-works", icon: HelpCircle },
   { label: "Support", href: "/support", icon: Headphones },
 ];
 
+const MORE_NAV = [
+  { label: "Coaching", href: "/coaching", icon: GraduationCap },
+  { label: "Boosters", href: "/booster", icon: Crown },
+];
+
 export default function Navbar() {
   const [open, setOpen] = useState(false);
-  const [gamesOpen, setGamesOpen] = useState(false);
   const [currencyOpen, setCurrencyOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
@@ -67,15 +68,15 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 lg:h-[72px] gap-3">
           {/* Left: hamburger + logo */}
-          <div className="flex items-center gap-2 min-w-0">
+          <div className="flex items-center gap-2 min-w-0 shrink-0">
             <button
               onClick={() => setOpen(!open)}
               aria-label="Menu"
-              className="lg:hidden p-2 -ml-1 rounded-lg text-a2-light/80 hover:text-a2-gold hover:bg-white/5 transition-colors"
+              className="p-2 -ml-1 rounded-lg text-a2-light/80 hover:text-a2-gold hover:bg-white/5 transition-colors"
             >
               {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
-            <Link href="/" className="flex items-center gap-2.5 shrink-0 group">
+            <Link href="/" className="flex items-center group shrink-0">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/home/header-logo.png"
@@ -85,8 +86,8 @@ export default function Navbar() {
             </Link>
           </div>
 
-          {/* Center nav */}
-          <nav className="hidden lg:flex items-center gap-1">
+          {/* Center nav — desktop */}
+          <nav className="hidden xl:flex items-center gap-1">
             {NAV.map((item) => {
               const Icon = item.icon;
               const active = isActive(item.href);
@@ -94,7 +95,7 @@ export default function Navbar() {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`relative flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  className={`relative flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
                     active
                       ? "text-a2-gold"
                       : "text-a2-light/70 hover:text-white"
@@ -108,64 +109,15 @@ export default function Navbar() {
                 </Link>
               );
             })}
-
-            {/* Games dropdown */}
-            <div
-              className="relative"
-              onMouseEnter={() => setGamesOpen(true)}
-              onMouseLeave={() => setGamesOpen(false)}
-            >
-              <button className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-a2-light/70 hover:text-white transition-colors">
-                <Gamepad2 className="w-4 h-4" />
-                Games
-                <ChevronDown
-                  className={`w-3.5 h-3.5 transition-transform ${
-                    gamesOpen ? "rotate-180" : ""
-                  }`}
-                />
-              </button>
-              <AnimatePresence>
-                {gamesOpen && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    className="absolute top-full left-0 mt-2 p-2 min-w-[260px] max-h-[75vh] overflow-y-auto rounded-2xl bg-a2-bg2 border border-a2-border shadow-2xl shadow-black/60 a2-glow-soft"
-                  >
-                    <div className="px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-a2-light/50 border-b border-a2-border mb-1.5">
-                      Choose your game
-                    </div>
-                    {games.map((game) => (
-                      <a
-                        key={game.id}
-                        href={`/boost?game=${game.id}`}
-                        className="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-white/[0.06] text-sm text-a2-light/80 hover:text-a2-gold transition-colors"
-                      >
-                        <span className="w-9 h-9 rounded-lg bg-black/40 border border-a2-border flex items-center justify-center shrink-0 overflow-hidden">
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img
-                            src={`/home/games/${game.id}.png`}
-                            alt={game.name}
-                            className="h-6 w-6 object-contain"
-                          />
-                        </span>
-                        <span className="whitespace-nowrap font-medium">
-                          {game.name}
-                        </span>
-                      </a>
-                    ))}
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
           </nav>
 
           {/* Right: desktop */}
-          <div className="hidden lg:flex items-center gap-1.5">
+          <div className="hidden lg:flex items-center gap-1.5 shrink-0">
             {/* Currency selector */}
             <div className="relative">
               <button
                 onClick={() => setCurrencyOpen(!currencyOpen)}
+                aria-label="Currency"
                 className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-a2-border text-a2-light/80 hover:border-a2-gold/40 hover:text-a2-gold transition-colors text-sm font-semibold"
               >
                 <span className="text-a2-gold">{currencySymbols[currency]}</span>
@@ -211,22 +163,22 @@ export default function Navbar() {
               </AnimatePresence>
             </div>
 
+            <button
+              aria-label="Search"
+              className="p-2 rounded-lg text-a2-light/70 hover:text-a2-gold hover:bg-white/5 transition-colors"
+            >
+              <Search className="w-5 h-5" />
+            </button>
             <Link
               href="/marketplace"
               aria-label="Cart"
-              className="p-2 rounded-lg text-a2-light/70 hover:text-a2-gold hover:bg-white/5 transition-colors"
-            >
-              <ShoppingCart className="w-5 h-5" />
-            </Link>
-            <button
-              aria-label="Notifications"
               className="relative p-2 rounded-lg text-a2-light/70 hover:text-a2-gold hover:bg-white/5 transition-colors"
             >
-              <Bell className="w-5 h-5" />
-              <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-a2-gold text-black text-[10px] font-bold flex items-center justify-center">
+              <ShoppingCart className="w-5 h-5" />
+              <span className="absolute top-0.5 right-0.5 w-4 h-4 rounded-full bg-a2-gold text-black text-[10px] font-bold flex items-center justify-center">
                 2
               </span>
-            </button>
+            </Link>
 
             <span className="mx-1.5 h-6 w-px bg-a2-border" />
 
@@ -242,8 +194,8 @@ export default function Navbar() {
                 </Link>
                 <Link
                   href="/messages"
-                  className="p-2 rounded-lg text-a2-light/70 hover:text-a2-gold hover:bg-white/5 transition-colors"
                   aria-label="Messages"
+                  className="p-2 rounded-lg text-a2-light/70 hover:text-a2-gold hover:bg-white/5 transition-colors"
                 >
                   <MessageCircle className="w-5 h-5" />
                 </Link>
@@ -266,14 +218,14 @@ export default function Navbar() {
               <>
                 <Link
                   href="/login"
-                  className="flex items-center gap-1.5 px-4 py-2 rounded-lg border border-a2-border text-a2-light text-sm font-semibold hover:border-a2-gold/50 hover:text-a2-gold transition-colors"
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-lg border border-a2-border text-a2-light text-sm font-semibold hover:border-a2-gold/50 hover:text-a2-gold transition-colors whitespace-nowrap"
                 >
                   <LogIn className="w-4 h-4" />
                   Login
                 </Link>
                 <Link
                   href="/signup"
-                  className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-a2-gold text-black text-sm font-bold hover:bg-a2-gold-bright transition-colors a2-glow-soft"
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-a2-gold text-black text-sm font-bold hover:bg-a2-gold-bright transition-colors a2-glow-soft whitespace-nowrap"
                 >
                   <UserPlus className="w-4 h-4" />
                   Sign Up
@@ -283,38 +235,38 @@ export default function Navbar() {
           </div>
 
           {/* Right: mobile icons */}
-          <div className="lg:hidden flex items-center gap-1">
-            {user && (
-              <Link
-                href="/dashboard"
-                title="Wallet balance"
-                className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-a2-gold/10 border border-a2-gold/30 text-a2-gold text-xs font-bold"
-              >
-                <Wallet className="w-3.5 h-3.5" />
-              </Link>
-            )}
+          <div className="lg:hidden flex items-center gap-1 shrink-0">
+            <button
+              aria-label="Search"
+              className="p-2 rounded-lg text-a2-light/80 hover:text-a2-gold transition-colors"
+            >
+              <Search className="w-5 h-5" />
+            </button>
             <Link
               href="/marketplace"
               aria-label="Cart"
-              className="p-2 rounded-lg text-a2-light/80 hover:text-a2-gold transition-colors"
+              className="relative p-2 rounded-lg text-a2-light/80 hover:text-a2-gold transition-colors"
             >
               <ShoppingCart className="w-5 h-5" />
+              <span className="absolute top-0.5 right-0.5 w-4 h-4 rounded-full bg-a2-gold text-black text-[10px] font-bold flex items-center justify-center">
+                2
+              </span>
             </Link>
           </div>
         </div>
       </div>
 
-      {/* Mobile menu */}
+      {/* Drawer */}
       <AnimatePresence>
         {open && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="lg:hidden border-b border-a2-border bg-a2-bg2/95 backdrop-blur-xl max-h-[calc(100dvh-4rem)] overflow-y-auto"
+            className="border-b border-a2-border bg-a2-bg2/95 backdrop-blur-xl max-h-[calc(100dvh-4rem)] overflow-y-auto shadow-2xl shadow-black/50"
           >
-            <nav className="px-4 py-4 space-y-1">
-              {NAV.map((item) => {
+            <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 space-y-1">
+              {[...NAV, ...MORE_NAV].map((item) => {
                 const Icon = item.icon;
                 const active = isActive(item.href);
                 return (
@@ -340,7 +292,7 @@ export default function Navbar() {
                   <Gamepad2 className="w-3.5 h-3.5" />
                   Choose your game
                 </div>
-                <div className="grid grid-cols-2 gap-1">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-1">
                   {games.map((game) => (
                     <a
                       key={game.id}

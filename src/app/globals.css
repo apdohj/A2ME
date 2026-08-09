@@ -52,7 +52,14 @@
   display: none;
 }
 
+img,
+video {
+  max-width: 100%;
+  display: block;
+}
+
 * {
+  box-sizing: border-box;
   scrollbar-width: thin;
   scrollbar-color: #2b2b2b #050505;
 }
