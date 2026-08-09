@@ -33,6 +33,14 @@ const orbitron = Orbitron({
 export const metadata: Metadata = {
   title: "A2ME — Level Up Your Game",
   description: "Professional gaming rank boosting and account marketplace. Buy and sell game accounts with real sellers.",
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any", type: "image/x-icon" },
+      { url: "/icon.png", sizes: "512x512", type: "image/png" },
+    ],
+    shortcut: { url: "/favicon.ico", type: "image/x-icon" },
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
+  },
 };
 
 export const viewport: Viewport = {

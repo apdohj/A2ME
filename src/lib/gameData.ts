@@ -19,7 +19,7 @@ export const games: GameConfig[] = [
     id: "valorant",
     name: "Valorant",
     icon: "🎯",
-    logo: "/games/valorant.svg",
+    logo: "/games/valorant.png",
     basePrice: 8,
     ranks: [
       { name: "Iron", divisions: 3, icon: "⬜", color: "#8B8B8B" },
@@ -56,7 +56,7 @@ export const games: GameConfig[] = [
     id: "cs2",
     name: "Counter-Strike 2",
     icon: "🔫",
-    logo: "/games/cs2.svg",
+    logo: "/games/cs2.png",
     basePrice: 10,
     ranks: [
       { name: "Silver 1", divisions: 1, icon: "⬜", color: "#C0C0C0" },
@@ -178,6 +178,7 @@ export const games: GameConfig[] = [
     id: "rocket-league",
     name: "Rocket League",
     icon: "🚗",
+    logo: "/games/rocket-league.png",
     basePrice: 7,
     ranks: [
       { name: "Bronze", divisions: 3, icon: "🟫", color: "#CD7F32" },
