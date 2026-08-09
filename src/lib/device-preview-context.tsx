@@ -2,7 +2,6 @@
 
 import {
   createContext,
-  useCallback,
   useContext,
   useEffect,
   useRef,
@@ -29,28 +28,31 @@ const OPTIONS: DeviceOption[] = [
   { key: "mobile", label: "Mobile", width: 390, height: 844, radius: 56, screenRadius: 48 },
 ];
 
+export const DEVICES: { key: DeviceType; label: string }[] = OPTIONS.map(
+  ({ key, label }) => ({ key, label })
+);
+
 const STORAGE_KEY = "a2me_device_preview";
-const DEVICE_EVENT = "a2me-device-preview-change";
+const CHANGE_EVENT = "a2me-device-preview-change";
 
 function readStoredDevice(): DeviceType {
   if (typeof window === "undefined") return "desktop";
   try {
     const stored = window.localStorage.getItem(STORAGE_KEY);
-    if (stored && OPTIONS.some((o) => o.key === stored)) {
-      return stored as DeviceType;
-    }
+    return stored && OPTIONS.some((o) => o.key === stored)
+      ? (stored as DeviceType)
+      : "desktop";
   } catch {
-    // ignore storage errors
+    return "desktop";
   }
-  return "desktop";
 }
 
-function subscribeToDeviceStore(cb: () => void) {
-  window.addEventListener(DEVICE_EVENT, cb);
-  window.addEventListener("storage", cb);
+function subscribeToDevice(callback: () => void) {
+  window.addEventListener(CHANGE_EVENT, callback);
+  window.addEventListener("storage", callback);
   return () => {
-    window.removeEventListener(DEVICE_EVENT, cb);
-    window.removeEventListener("storage", cb);
+    window.removeEventListener(CHANGE_EVENT, callback);
+    window.removeEventListener("storage", callback);
   };
 }
 
@@ -65,7 +67,7 @@ const DevicePreviewContext = createContext<DevicePreviewContextValue | undefined
 
 export function DevicePreviewProvider({ children }: { children: ReactNode }) {
   const device = useSyncExternalStore<DeviceType>(
-    subscribeToDeviceStore,
+    subscribeToDevice,
     readStoredDevice,
     () => "desktop"
   );
@@ -73,14 +75,14 @@ export function DevicePreviewProvider({ children }: { children: ReactNode }) {
   const screenRef = useRef<HTMLDivElement>(null);
   const option = OPTIONS.find((o) => o.key === device) ?? OPTIONS[1];
 
-  const setDevice = useCallback((d: DeviceType) => {
+  const setDevice = (next: DeviceType) => {
     try {
-      window.localStorage.setItem(STORAGE_KEY, d);
+      window.localStorage.setItem(STORAGE_KEY, next);
     } catch {
       // ignore storage errors
     }
-    window.dispatchEvent(new Event(DEVICE_EVENT));
-  }, []);
+    window.dispatchEvent(new Event(CHANGE_EVENT));
+  };
 
   useEffect(() => {
     const isFrame = device !== "desktop";
@@ -101,7 +103,7 @@ export function DevicePreviewProvider({ children }: { children: ReactNode }) {
       const s = Math.min(
         1,
         (window.innerWidth - 48) / current.width,
-        (window.innerHeight - 132) / current.height
+        (window.innerHeight - 120) / current.height
       );
       setScale(Math.max(0.1, s));
     };
@@ -116,8 +118,7 @@ export function DevicePreviewProvider({ children }: { children: ReactNode }) {
         children
       ) : (
         <div className="fixed inset-0 z-[70] overflow-hidden bg-black">
-          <Toolbar />
-          <div className="absolute inset-0 flex items-start justify-center px-4 pt-20 pb-8">
+          <div className="absolute inset-0 flex items-start justify-center px-4 pt-6 pb-8">
             <div
               className="relative shrink-0"
               style={{
@@ -150,38 +151,6 @@ export function DevicePreviewProvider({ children }: { children: ReactNode }) {
   );
 }
 
-function Toolbar() {
-  const { device, setDevice } = useDevicePreview();
-  return (
-    <div className="absolute inset-x-0 top-0 z-20 flex justify-center p-3">
-      <div className="flex items-center gap-1 rounded-2xl bg-[#121212] border border-white/10 shadow-2xl shadow-black/80 p-1.5 max-w-full overflow-x-auto">
-        {OPTIONS.map((o) => {
-          const active = device === o.key;
-          return (
-            <button
-              key={o.key}
-              onClick={() => setDevice(o.key)}
-              title={o.label}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap ${
-                active
-                  ? "bg-gold/20 border border-gold/50 text-gold"
-                  : "border border-transparent text-slate-400 hover:text-white hover:bg-white/5"
-              }`}
-            >
-              <DeviceIcon type={o.key} />
-              <span className="hidden sm:inline">{o.label}</span>
-            </button>
-          );
-        })}
-        <span className="mx-1 h-4 w-px bg-white/10 shrink-0" />
-        <span className="px-2 text-[10px] uppercase tracking-wider text-slate-600 hidden md:inline shrink-0">
-          Preview
-        </span>
-      </div>
-    </div>
-  );
-}
-
 function DynamicIsland() {
   return (
     <div className="absolute top-2 left-1/2 -translate-x-1/2 z-[95] h-[22px] w-24 rounded-full bg-black border border-white/10 shadow-lg shadow-black/60" />
@@ -200,7 +169,7 @@ function HomeBar() {
   );
 }
 
-function DeviceIcon({ type }: { type: DeviceType }) {
+export function DeviceIcon({ type, className }: { type: DeviceType; className?: string }) {
   const common = {
     width: 16,
     height: 16,
@@ -210,6 +179,7 @@ function DeviceIcon({ type }: { type: DeviceType }) {
     strokeWidth: 1.7,
     strokeLinecap: "round" as const,
     strokeLinejoin: "round" as const,
+    className,
   };
   switch (type) {
     case "mobile":

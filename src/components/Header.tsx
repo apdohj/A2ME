@@ -11,6 +11,7 @@ import { useSettings } from "@/lib/settings-context";
 import { useCurrency } from "@/lib/currency-context";
 import { CURRENCIES } from "@/lib/currency";
 import { currencySymbols, type Currency } from "@/lib/types";
+import DeviceSwitcher from "@/components/DeviceSwitcher";
 
 export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -116,6 +117,9 @@ export default function Header() {
 
             {/* Right Side */}
             <div className="hidden lg:flex items-center gap-2">
+              {/* Preview view switcher */}
+              <DeviceSwitcher />
+
               {/* Currency selector */}
               <div className="relative">
                 <button
@@ -289,6 +293,8 @@ export default function Header() {
                   ))}
                 </div>
               </div>
+              <hr className="border-white/10 my-2" />
+              <DeviceSwitcher variant="menu" />
               <Link
                 href="/sell"
                 className="block px-4 py-2.5 rounded-xl border border-gold/50 text-gold text-center text-sm font-semibold"
