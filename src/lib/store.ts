@@ -222,6 +222,35 @@ export async function restoreProductsBySeller(sellerId: string): Promise<void> {
   );
 }
 
+export async function deleteUserPermanently(
+  uid: string,
+  byUid: string
+): Promise<void> {
+  const profile = await getUser(uid);
+
+  const products = await getDocs(
+    query(collection(firestore, "products"), where("sellerId", "==", uid))
+  );
+  await Promise.all(products.docs.map((d) => deleteDoc(d.ref)));
+
+  const convs = await getDocs(
+    query(
+      collection(firestore, "conversations"),
+      where("participants", "array-contains", uid)
+    )
+  );
+  await Promise.all(convs.docs.map((d) => deleteDoc(d.ref)));
+
+  await setDoc(doc(firestore, "deletedUsers", uid), {
+    email: profile?.email ?? "",
+    nickname: profile?.nickname ?? "",
+    deletedAt: Date.now(),
+    deletedBy: byUid,
+  });
+
+  await deleteDoc(doc(firestore, "users", uid));
+}
+
 /* ---------------- Conversations & Messages ---------------- */
 
 export async function getOrCreateConversation(

@@ -15,7 +15,7 @@ import {
   deleteUser,
   type User,
 } from "firebase/auth";
-import { doc, onSnapshot, setDoc } from "firebase/firestore";
+import { doc, getDoc, onSnapshot, setDoc } from "firebase/firestore";
 import { auth, firestore } from "./firebase";
 import { debitSellerActivation, getUser } from "./store";
 import type { AppUser } from "./types";
@@ -25,6 +25,7 @@ interface AuthContextValue {
   profile: AppUser | null;
   loading: boolean;
   banned: boolean;
+  deleted: boolean;
   signup: (email: string, password: string, nickname: string) => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
@@ -42,26 +43,52 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<AppUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [banned, setBanned] = useState(false);
+  const [deleted, setDeleted] = useState(false);
 
   useEffect(() => {
     let unsubProfile: (() => void) | undefined;
+    let unsubDeleted: (() => void) | undefined;
     const unsubAuth = onAuthStateChanged(auth, async (u) => {
-      setUser(u);
-      setLoading(true);
       unsubProfile?.();
       unsubProfile = undefined;
+      unsubDeleted?.();
+      unsubDeleted = undefined;
+      setUser(u);
+      setLoading(true);
 
       if (!u) {
         setProfile(null);
         setBanned(false);
+        setDeleted(false);
         setLoading(false);
         return;
       }
 
       const userRef = doc(firestore, "users", u.uid);
+      const deletedRef = doc(firestore, "deletedUsers", u.uid);
+
+      unsubDeleted = onSnapshot(deletedRef, (snap) => {
+        if (snap.exists()) {
+          setDeleted(true);
+          setProfile(null);
+          setBanned(false);
+          setLoading(false);
+        } else {
+          setDeleted(false);
+        }
+      });
+
       try {
         const existingProfile = await getUser(u.uid);
         if (!existingProfile) {
+          const deletedSnap = await getDoc(deletedRef);
+          if (deletedSnap.exists()) {
+            setDeleted(true);
+            setProfile(null);
+            setBanned(false);
+            setLoading(false);
+            return;
+          }
           await setDoc(userRef, {
             uid: u.uid,
             email: u.email ?? "",
@@ -93,6 +120,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => {
       unsubAuth();
       unsubProfile?.();
+      unsubDeleted?.();
     };
   }, []);
 
@@ -164,6 +192,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         profile,
         loading,
         banned,
+        deleted,
         signup,
         login,
         logout,
@@ -174,8 +203,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         refresh,
       }}
     >
-      {children}
+      {deleted ? (
+        <DeletedAccountScreen onExit={() => signOut(auth)} />
+      ) : (
+        children
+      )}
     </AuthContext.Provider>
+  );
+}
+
+function DeletedAccountScreen({ onExit }: { onExit: () => void }) {
+  return (
+    <div className="min-h-screen flex items-center justify-center px-4">
+      <div className="w-full max-w-md glass-card p-8 text-center">
+        <div className="text-5xl mb-4">🚫</div>
+        <h1 className="text-xl font-bold text-white mb-3">
+          This account has been deleted
+        </h1>
+        <p className="text-sm text-slate-400 mb-2">
+          This account has been permanently deleted and can no longer be used to
+          log in again.
+        </p>
+        <p className="text-sm text-slate-400 mb-8" dir="rtl">
+          تم حذف هذا الحساب نهائيًا ولا يمكن تسجيل الدخول به مرة أخرى.
+        </p>
+        <button
+          onClick={onExit}
+          className="w-full py-3 rounded-xl bg-white/10 text-slate-200 font-semibold hover:bg-white/20 transition-colors"
+        >
+          Sign out / تسجيل الخروج
+        </button>
+      </div>
+    </div>
   );
 }
 

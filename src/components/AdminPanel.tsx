@@ -11,6 +11,7 @@ import {
   updateProduct,
   deleteProduct,
   deleteAllProducts,
+  deleteUserPermanently,
   uploadImage,
   saveSettings,
   saveGameLogos,
@@ -249,6 +250,22 @@ function UsersTab({ me }: { me: string }) {
                           className="px-2 py-1 rounded-lg bg-green-500/10 border border-green-500/30 text-green-400 text-[11px] font-semibold hover:bg-green-500/20 transition-colors"
                         >
                           Unban
+                        </button>
+                      )}
+                      {u.role !== "admin" && !isMe && (
+                        <button
+                          onClick={async () => {
+                            const ok = window.confirm(
+                              `Permanently delete "${u.nickname}" (${u.email})?\n\nAll their products and chats will be removed and they will never be able to sign in again.`
+                            );
+                            if (!ok) return;
+                            setBusy(u.uid);
+                            await deleteUserPermanently(u.uid, me);
+                            setBusy(null);
+                          }}
+                          className="px-2 py-1 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-[11px] font-semibold hover:bg-red-500/20 transition-colors"
+                        >
+                          Delete
                         </button>
                       )}
                     </div>
