@@ -3,10 +3,13 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Search, ArrowRight } from "lucide-react";
+import { useSettings } from "@/lib/settings-context";
 
 export default function Hero() {
   const router = useRouter();
   const [query, setQuery] = useState("");
+  const { settings } = useSettings();
+  const t = settings.texts;
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,15 +42,15 @@ export default function Hero() {
         <div className="w-full max-w-4xl text-center min-w-0">
           <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full border border-a2-gold/30 bg-a2-gold/5 text-a2-gold text-[11px] sm:text-xs font-semibold tracking-[0.22em] uppercase mb-6">
             <span className="w-1.5 h-1.5 rounded-full bg-a2-gold animate-pulse shrink-0" />
-            Level Up Your Gaming
+            {t.heroBadge}
           </div>
 
           <h1 className="font-display font-bold uppercase leading-[1.02] tracking-tight max-w-full">
             <span className="block text-[2.6rem] leading-[1.02] sm:text-6xl xl:text-8xl text-a2-gold neon-text">
-              Buy &amp; Sell
+              {t.heroTitle} {t.heroHighlight}
             </span>
             <span className="block text-[2.1rem] leading-[1.05] sm:text-5xl xl:text-7xl text-white mt-2">
-              Game Accounts
+              {t.heroTitle2}
             </span>
           </h1>
 
@@ -56,9 +59,7 @@ export default function Hero() {
           </div>
 
           <p className="mt-4 text-a2-light/80 max-w-lg mx-auto text-base sm:text-lg leading-relaxed">
-            The best marketplace for gaming accounts in the Middle East.
-            <br className="hidden sm:block" />
-            Find your dream account or sell yours with complete safety.
+            {t.heroSubtitle}
           </p>
 
           {/* Search bar */}

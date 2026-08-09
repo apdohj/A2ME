@@ -406,7 +406,7 @@ function GamesTab({
     setBusy(gameId);
     setMsg({});
     try {
-      const url = await uploadImage(file);
+      const url = await uploadImage(file, 512);
       await saveGameLogos({ ...(gameLogos ?? {}), [gameId]: url });
       setMsg({ [gameId]: "✅ Logo updated — appears site-wide instantly." });
     } catch (error) {
