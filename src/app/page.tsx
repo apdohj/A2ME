@@ -1,22 +1,22 @@
-import Header from "@/components/Header";
-import HeroCalculator from "@/components/HeroCalculator";
+import Navbar from "@/components/home/Navbar";
+import Hero from "@/components/home/Hero";
+import TrustFeatures from "@/components/home/TrustFeatures";
+import GameCategories from "@/components/home/GameCategories";
+import Marketplace from "@/components/home/Marketplace";
 import HowItWorks from "@/components/HowItWorks";
-import SellCTA from "@/components/SellCTA";
-import ExtraOptions from "@/components/ExtraOptions";
-import TopBoosters from "@/components/TopBoosters";
 import FAQ from "@/components/FAQ";
 import Footer from "@/components/Footer";
 
 export default function HomePage() {
   return (
     <>
-      <Header />
+      <Navbar />
       <main>
-        <HeroCalculator />
+        <Hero />
+        <TrustFeatures />
+        <GameCategories />
+        <Marketplace />
         <HowItWorks />
-        <SellCTA />
-        <ExtraOptions />
-        <TopBoosters />
         <FAQ />
       </main>
       <Footer />

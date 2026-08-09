@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
-import { Inter } from "next/font/google";
+import { Inter, Orbitron, Rajdhani } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/lib/auth-context";
 import { SettingsProvider } from "@/lib/settings-context";
@@ -13,6 +13,20 @@ import FloatingSupportButton from "@/components/FloatingSupportButton";
 
 const inter = Inter({
   subsets: ["latin"],
+  display: "swap",
+});
+
+const rajdhani = Rajdhani({
+  subsets: ["latin"],
+  weight: ["500", "600", "700"],
+  variable: "--font-rajdhani",
+  display: "swap",
+});
+
+const orbitron = Orbitron({
+  subsets: ["latin"],
+  weight: ["600", "700"],
+  variable: "--font-orbitron",
   display: "swap",
 });
 
@@ -31,7 +45,7 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" dir="ltr" className="dark">
-      <body className={`${inter.className} bg-obsidian text-slate-200 antialiased min-h-screen`}>
+      <body className={`${inter.className} ${rajdhani.variable} ${orbitron.variable} bg-obsidian text-slate-200 antialiased min-h-screen`}>
         <FirebaseProvider />
         <AuthProvider>
           <SettingsProvider>
